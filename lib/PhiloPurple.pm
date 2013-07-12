@@ -5,7 +5,9 @@ use warnings;
 
 our $VERSION = "0.01";
 
+use Config::PL ();
 use Encode;
+use File::Spec;
 use URL::Encode;
 use Plack::Session;
 use PhiloPurple::Request;
@@ -40,6 +42,62 @@ sub session {
 # Attributes:
 sub request           { $_[0]->{request} }
 sub req               { $_[0]->{request} }
+
+# -------------------------------------------------------------------------
+# Util
+
+sub add_method {
+    my ($klass, $method, $code) = @_;
+    no strict 'refs';
+    *{"${klass}::${method}"} = $code;
+}
+
+sub base_dir {
+    my $self = shift;
+    my $class = $self->app_name;
+
+    my $base_dir = do {
+        my $path = $class;
+        $path =~ s!::!/!g;
+        if (my $libpath = $INC{"$path.pm"}) {
+            $libpath =~ s!\\!/!g; # win32
+            $libpath =~ s!(?:blib/)?lib/+$path\.pm$!!;
+            File::Spec->rel2abs($libpath || './');
+        } else {
+            File::Spec->rel2abs('./');
+        }
+    };
+
+    {
+        no strict 'refs';
+        *{"$class\::base_dir"} = sub() { $base_dir };
+    }
+    $base_dir;
+}
+
+sub app_name {
+    my $self = shift;
+    $self->{app_name} || ref $self || $self;
+}
+
+sub mode_name  { $ENV{PLACK_ENV} }
+sub debug_mode { $ENV{PHILOPURPLE_DEBUG} }
+
+sub load_config {
+    my $self = shift;
+    Config::PL::config_do File::Spec->catfile($self->base_dir, 'config', 'common.pl');
+}
+sub config {
+    my $self = shift;
+    my $class = $self->app_name;
+
+    my $config = $class->load_config;
+    {
+        no strict 'refs';
+        *{"$class\::config"} = sub() { $config };
+    }
+    $config;
+}
 
 # -------------------------------------------------------------------------
 # Methods:

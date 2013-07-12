@@ -1,3 +1,4 @@
+requires 'Config::PL';
 requires 'Plack';
 requires 'Tiffany';
 requires 'URI::QueryParam';
