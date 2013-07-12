@@ -15,20 +15,35 @@ use PhiloPurple::Response;
 use PhiloPurple::Trigger qw/add_trigger call_trigger get_trigger_code/;
 use Scalar::Util ();
 
+sub new {
+    my $class = shift;
+    my %args = @_ == 1 ? %{ $_[0] } : @_;
+
+    if ($class eq __PACKAGE__ && !$args{app_name}) {
+        $args{app_name} = 'PhiloPurple::_Sandbox';
+    }
+    bless { %args }, $class;
+}
+
 # -------------------------------------------------------------------------
 # Hook points:
 # You can override these methods.
 sub create_request  { PhiloPurple::Request->new($_[1], $_[0]) }
 sub create_response { shift; PhiloPurple::Response->new(@_) }
 
-sub create_view {
-    my ($self, @args) = @_;
-    require Tiffany;
-    @args = ('Text::MicroTemplate::Extended') unless @args;
-    Tiffany->load(@args);
-}
+sub view     {
+    my $self = shift;
+    my $class = $self->app_name;
 
-sub view     { my $self = shift; $self->{view} ||= $self->create_view; }
+    require Tiffany;
+    my @args = ref $self && $self->{view} ? %{ $self->{view} } : ();
+    my $view = Tiffany->load(@args);
+    {
+        no strict 'refs';
+        *{"$class\::view"} = sub() { $view };
+    }
+    $view;
+}
 sub dispatch { die "This is abstract method: dispatch"    }
 
 sub html_content_type { 'text/html; charset=UTF-8' }
