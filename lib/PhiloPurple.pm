@@ -13,6 +13,7 @@ use Plack::Session;
 use PhiloPurple::Request;
 use PhiloPurple::Response;
 use PhiloPurple::Trigger qw/add_trigger call_trigger get_trigger_code/;
+use Module::Load ();
 use Scalar::Util ();
 
 sub new {
@@ -31,12 +32,12 @@ sub new {
 sub create_request  { PhiloPurple::Request->new($_[1], $_[0]) }
 sub create_response { shift; PhiloPurple::Response->new(@_) }
 
-sub view     {
+sub view {
     my $self = shift;
     my $class = $self->app_name;
 
     require Tiffany;
-    my @args = ref $self && $self->{view} ? %{ $self->{view} } : ();
+    my @args = ref $self && $self->{view} ? %{ $self->{view} } : ('Text::MicroTemplate::Extended');
     my $view = Tiffany->load(@args);
     {
         no strict 'refs';
@@ -44,7 +45,36 @@ sub view     {
     }
     $view;
 }
-sub dispatch { die "This is abstract method: dispatch"    }
+
+sub dispatcher {
+    my $self = shift;
+    my $class = $self->app_name;
+
+    my $dispatcher_pkg = $class . '::Dispatcher';
+    local $@;
+    eval {
+        Module::Load::load($dispatcher_pkg);
+        $dispatcher_pkg->import if $dispatcher_pkg->can('import');
+    };
+    if ($@) {
+        undef $@;
+        my $base_dispatcher_class = 'PhiloPurple::Dispatcher::PHPish';
+        Module::Load::load($base_dispatcher_class);
+        no strict 'refs'; @{"$dispatcher_pkg\::ISA"} = ($base_dispatcher_class);
+    }
+
+    my $dispatcher = $dispatcher_pkg->new;
+    {
+        no strict 'refs';
+        *{"$class\::dispatcher"} = sub() { $dispatcher };
+    }
+    $dispatcher;
+}
+
+sub dispatch {
+    my $self = shift;
+    $self->dispatcher->dispatch($self);
+}
 
 sub html_content_type { 'text/html; charset=UTF-8' }
 sub encoding { state $enc = Encode::find_encoding('utf-8') }
