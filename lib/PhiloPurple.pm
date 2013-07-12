@@ -5,6 +5,7 @@ use warnings;
 
 our $VERSION = "0.01";
 
+use Carp ();
 use Config::PL ();
 use Encode;
 use File::Spec;
@@ -20,8 +21,23 @@ sub new {
     my $class = shift;
     my %args = @_ == 1 ? %{ $_[0] } : @_;
 
-    if ($class eq __PACKAGE__ && !$args{app_name}) {
-        $args{app_name} = 'PhiloPurple::_Sandbox';
+    if ($class eq __PACKAGE__) {
+        $args{app_name} //= 'PhiloPurple::_Sandbox';
+        $class = $args{app_name};
+
+        local $@;
+        eval {
+            Module::Load::load($class);
+            $class->import if $class->can('import');
+        };
+        if ($@) {
+            undef $@;
+            no strict 'refs'; @{"$class\::ISA"} = (__PACKAGE__);
+        }
+        Carp::croak "$class is not PhiloPurple class" unless $class->isa(__PACKAGE__);
+    }
+    else {
+        Carp::croak "can't specify `app_name`" if $args{app_name};
     }
     bless { %args }, $class;
 }
@@ -32,12 +48,15 @@ sub new {
 sub create_request  { PhiloPurple::Request->new($_[1], $_[0]) }
 sub create_response { shift; PhiloPurple::Response->new(@_) }
 
+sub template_dir { File::Spec->catfile(shift->base_dir, 'tmpl') }
 sub view {
     my $self = shift;
     my $class = $self->app_name;
 
     require Tiffany;
-    my @args = ref $self && $self->{view} ? %{ $self->{view} } : ('Text::MicroTemplate::Extended');
+    my @args = ref $self && $self->{view} ? %{ $self->{view} } : ('Text::MicroTemplate::Extended', {
+        include_path => $self->template_dir,
+    });
     my $view = Tiffany->load(@args);
     {
         no strict 'refs';
@@ -135,7 +154,7 @@ sub base_path {
 
 sub app_name {
     my $self = shift;
-    $self->{app_name} || ref $self || $self;
+    ref $self || $self;
 }
 
 sub mode_name  { $ENV{PLACK_ENV} }
@@ -204,17 +223,14 @@ sub uri_for {
 
 
 sub to_app {
-    my ($class, ) = @_;
-    return sub { $class->handle_request(shift) };
+    my ($self, ) = @_;
+    return sub { $self->handle_request(shift) };
 }
 
 sub handle_request {
-    my ($class, $env) = @_;
+    my ($self, $env) = @_;
 
-    my $req = $class->create_request($env);
-    my $self = $class->new(
-        request => $req,
-    );
+    local $self->{request} = $self->create_request($env);
 
     my $response;
     for my $code ($self->get_trigger_code('BEFORE_DISPATCH')) {
@@ -319,7 +335,7 @@ sprintf q[<!doctype html>
         <div class="code">%s</div>
         <div class="message">%s</div>
     </body>
-</html>'], $code, $msg;
+</html>], $code, $msg;
 }
 
 
