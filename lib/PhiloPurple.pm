@@ -10,6 +10,7 @@ use URL::Encode;
 use Plack::Session;
 use PhiloPurple::Request;
 use PhiloPurple::Response;
+use PhiloPurple::Trigger qw/add_trigger call_trigger get_trigger_code/;
 use Scalar::Util ();
 
 # -------------------------------------------------------------------------
@@ -19,7 +20,6 @@ sub create_request  { PhiloPurple::Request->new($_[1], $_[0]) }
 sub create_response { shift; PhiloPurple::Response->new(@_) }
 sub create_view     { die "This is abstract method: create_view" }
 sub dispatch        { die "This is abstract method: dispatch"    }
-
 
 sub html_content_type { 'text/html; charset=UTF-8' }
 sub encoding { state $enc = Encode::find_encoding('utf-8') }
