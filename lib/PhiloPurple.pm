@@ -120,6 +120,19 @@ sub base_dir {
     $base_dir;
 }
 
+sub base_path {
+    my $self  = shift;
+    my $class = $self->app_name;
+    require Path::Tiny;
+
+    my $path = Path::Tiny::path($self->base_dir);
+    {
+        no strict 'refs';
+        *{"$class\::base_path"} = sub() { $path };
+    }
+    $path;
+}
+
 sub app_name {
     my $self = shift;
     $self->{app_name} || ref $self || $self;
