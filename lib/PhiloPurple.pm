@@ -48,7 +48,19 @@ sub new {
 sub create_request  { PhiloPurple::Request->new($_[1], $_[0]) }
 sub create_response { shift; PhiloPurple::Response->new(@_) }
 
-sub template_dir { File::Spec->catfile(shift->base_dir, 'tmpl') }
+sub template_dir {
+    my $self = shift;
+    my $class = $self->app_name;
+
+    my $tmpl = ref $self && $self->{template_dir} ? $self->{template_dir} : 'tmpl';
+    $tmpl = File::Spec->catfile($self->base_dir, $tmpl);
+    {
+        no strict 'refs';
+        *{"$class\::template_dir"} = sub { $tmpl };
+    }
+    $tmpl
+}
+
 sub view {
     my $self = shift;
     my $class = $self->app_name;
@@ -56,11 +68,12 @@ sub view {
     require Tiffany;
     my @args = ref $self && $self->{view} ? %{ $self->{view} } : ('Text::MicroTemplate::Extended', {
         include_path => $self->template_dir,
+        template_args => { c => sub { $self }, }
     });
     my $view = Tiffany->load(@args);
     {
         no strict 'refs';
-        *{"$class\::view"} = sub() { $view };
+        *{"$class\::view"} = sub { $view };
     }
     $view;
 }
@@ -85,7 +98,7 @@ sub dispatcher {
     my $dispatcher = $dispatcher_pkg->new;
     {
         no strict 'refs';
-        *{"$class\::dispatcher"} = sub() { $dispatcher };
+        *{"$class\::dispatcher"} = sub { $dispatcher };
     }
     $dispatcher;
 }
@@ -134,7 +147,7 @@ sub base_dir {
 
     {
         no strict 'refs';
-        *{"$class\::base_dir"} = sub() { $base_dir };
+        *{"$class\::base_dir"} = sub { $base_dir };
     }
     $base_dir;
 }
@@ -147,7 +160,7 @@ sub base_path {
     my $path = Path::Tiny::path($self->base_dir);
     {
         no strict 'refs';
-        *{"$class\::base_path"} = sub() { $path };
+        *{"$class\::base_path"} = sub { $path };
     }
     $path;
 }
@@ -172,7 +185,7 @@ sub config {
     my $config = $class->load_config;
     {
         no strict 'refs';
-        *{"$class\::config"} = sub() { $config };
+        *{"$class\::config"} = sub { $config };
     }
     $config;
 }
