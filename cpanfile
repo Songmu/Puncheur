@@ -1,4 +1,5 @@
 requires 'Plack';
+requires 'Tiffany';
 requires 'URI::QueryParam';
 requires 'URL::Encode';
 requires 'perl', '5.010';

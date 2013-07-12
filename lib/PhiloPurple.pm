@@ -18,8 +18,16 @@ use Scalar::Util ();
 # You can override these methods.
 sub create_request  { PhiloPurple::Request->new($_[1], $_[0]) }
 sub create_response { shift; PhiloPurple::Response->new(@_) }
-sub create_view     { die "This is abstract method: create_view" }
-sub dispatch        { die "This is abstract method: dispatch"    }
+
+sub create_view {
+    my ($self, @args) = @_;
+    require Tiffany;
+    @args = ('Text::MicroTemplate::Extended') unless @args;
+    Tiffany->load(@args);
+}
+
+sub view     { my $self = shift; $self->{view} ||= $self->create_view; }
+sub dispatch { die "This is abstract method: dispatch"    }
 
 sub html_content_type { 'text/html; charset=UTF-8' }
 sub encoding { state $enc = Encode::find_encoding('utf-8') }
@@ -105,7 +113,7 @@ PROCESS_END:
 
 sub render {
     my $self = shift;
-    my $html = $self->create_view->render(@_);
+    my $html = $self->view->render(@_);
 
     for my $code ($self->get_trigger_code('HTML_FILTER')) {
         $html = $code->($self, $html);
