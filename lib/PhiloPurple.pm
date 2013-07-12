@@ -143,7 +143,8 @@ sub debug_mode { $ENV{PHILOPURPLE_DEBUG} }
 
 sub load_config {
     my $self = shift;
-    Config::PL::config_do File::Spec->catfile($self->base_dir, 'config', 'common.pl');
+    my $config_file = File::Spec->catfile($self->base_dir, 'config', 'common.pl');
+    -e $config_file ? Config::PL::config_do($config_file) : {};
 }
 sub config {
     my $self = shift;
