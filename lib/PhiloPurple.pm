@@ -9,6 +9,7 @@ use Carp ();
 use Config::PL ();
 use Encode;
 use File::Spec;
+use JSON;
 use URL::Encode;
 use Plack::Session;
 use PhiloPurple::Request;
@@ -31,7 +32,6 @@ sub new {
             $class->import if $class->can('import');
         };
         if ($@) {
-            undef $@;
             no strict 'refs'; @{"$class\::ISA"} = (__PACKAGE__);
         }
         Carp::croak "$class is not PhiloPurple class" unless $class->isa(__PACKAGE__);
@@ -89,7 +89,6 @@ sub dispatcher {
         $dispatcher_pkg->import if $dispatcher_pkg->can('import');
     };
     if ($@) {
-        undef $@;
         my $base_dispatcher_class = 'PhiloPurple::Dispatcher::PHPish';
         Module::Load::load($base_dispatcher_class);
         no strict 'refs'; @{"$dispatcher_pkg\::ISA"} = ($base_dispatcher_class);
@@ -273,6 +272,34 @@ sub render {
             'Content-Length' => length($html)
         ],
         [$html],
+    );
+}
+
+sub res_json {
+    my ($self, $data) = @_;
+
+    state $json = JSON->new->utf8;
+    my $body = eval {
+        $json->encode($data);
+    };
+    local $@;
+    if (my $err = $@) {
+        Carp::croak $err;
+    }
+
+    return $self->create_response(
+        200,
+        [
+            'Content-type'           => 'application/json',
+            ### For IE 9 or later. See http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2013-1297
+            'X-Content-Type-Options' => 'nosniff',
+            ### Suppress loading web-page into iframe. See http://blog.mozilla.org/security/2010/09/08/x-frame-options/
+            'X-Frame-Options'        => 'DENY',
+            ### no public cache
+            'Cache-Control'          => 'private',
+            'Content-Length'         => length($body)
+        ],
+        [ $body ]
     );
 }
 
