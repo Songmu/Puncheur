@@ -40,6 +40,8 @@ sub new {
     }
     bless { %args }, $class;
 }
+our $_CONTEXT;
+sub _context { $_CONTEXT }
 
 # -------------------------------------------------------------------------
 # Hook points:
@@ -64,7 +66,7 @@ sub view {
     require Tiffany;
     my @args = ref $self && $self->{view} ? %{ $self->{view} } : ('Text::MicroTemplate::Extended', {
         include_path => $self->template_dir,
-        template_args => { c => sub { $self }, }
+        template_args => { c => sub { $self->_context }, }
     });
     my $view = Tiffany->load(@args);
 
@@ -224,6 +226,8 @@ sub handle_request {
 
     my $c = $self->clone;
     $c->{request} = $c->create_request($env);
+
+    local $_CONTEXT = $c;
 
     my $response;
     for my $code ($c->get_trigger_code('BEFORE_DISPATCH')) {
