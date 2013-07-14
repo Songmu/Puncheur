@@ -6,6 +6,7 @@ use warnings;
 our $VERSION = "0.01";
 
 use Carp ();
+use Clone qw/clone/;
 use Config::PL ();
 use Encode;
 use File::Spec;
@@ -86,7 +87,7 @@ sub dispatcher {
         no strict 'refs'; @{"$dispatcher_pkg\::ISA"} = ($base_dispatcher_class);
     }
 
-    my $dispatcher = $dispatcher_pkg->new;
+    my $dispatcher = $dispatcher_pkg->new($self);
 
     $self->_cache_method($dispatcher);
 }
@@ -221,16 +222,17 @@ sub to_psgi {
 sub handle_request {
     my ($self, $env) = @_;
 
-    local $self->{request} = $self->create_request($env);
+    my $c = $self->clone;
+    $c->{request} = $c->create_request($env);
 
     my $response;
-    for my $code ($self->get_trigger_code('BEFORE_DISPATCH')) {
-        $response = $code->($self);
+    for my $code ($c->get_trigger_code('BEFORE_DISPATCH')) {
+        $response = $code->($c);
         goto PROCESS_END if Scalar::Util::blessed($response) && $response->isa('Plack::Response');
     }
-    $response = $self->dispatch() or die "cannot get any response";
+    $response = $c->dispatch or die "cannot get any response";
 PROCESS_END:
-    $self->call_trigger('AFTER_DISPATCH' => $response);
+    $c->call_trigger('AFTER_DISPATCH' => $response);
 
     return $response->finalize;
 }
