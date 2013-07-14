@@ -135,7 +135,7 @@ sub base_dir {
     my $base_dir = do {
         my $path = $class;
         $path =~ s!::!/!g;
-        if (my $libpath = $INC{"$path.pm"}) {
+        if (!$self->{app_name} and my $libpath = $INC{"$path.pm"}) {
             $libpath =~ s!\\!/!g; # win32
             $libpath =~ s!(?:blib/)?lib/+$path\.pm$!!;
             File::Spec->rel2abs($libpath || './');
