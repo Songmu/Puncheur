@@ -53,10 +53,14 @@ sub template_dir {
     my $self = shift;
     my $class = $self->app_name;
 
-    my $tmpl = ref $self && $self->{template_dir} ? $self->{template_dir} : 'tmpl';
-    $tmpl = File::Spec->catfile($self->base_dir, $tmpl);
+    my $tmpl = $self->{template_dir} ? $self->{template_dir} : ['tmpl'];
+    my @tmpl = ref $tmpl ? @$tmpl : ($tmpl);
 
-    $self->_cache_method($tmpl);
+    for (@tmpl) {
+        $_ = File::Spec->catfile($self->base_dir, $_)
+            unless File::Spec->file_name_is_absolute($_);
+    }
+    $self->_cache_method(\@tmpl);
 }
 
 sub view {
