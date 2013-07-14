@@ -54,11 +54,8 @@ sub template_dir {
 
     my $tmpl = ref $self && $self->{template_dir} ? $self->{template_dir} : 'tmpl';
     $tmpl = File::Spec->catfile($self->base_dir, $tmpl);
-    {
-        no strict 'refs';
-        *{"$class\::template_dir"} = sub { $tmpl };
-    }
-    $tmpl
+
+    $self->_cache_method($tmpl);
 }
 
 sub view {
@@ -71,11 +68,8 @@ sub view {
         template_args => { c => sub { $self }, }
     });
     my $view = Tiffany->load(@args);
-    {
-        no strict 'refs';
-        *{"$class\::view"} = sub { $view };
-    }
-    $view;
+
+    $self->_cache_method($view);
 }
 
 sub dispatcher {
@@ -95,11 +89,8 @@ sub dispatcher {
     }
 
     my $dispatcher = $dispatcher_pkg->new;
-    {
-        no strict 'refs';
-        *{"$class\::dispatcher"} = sub { $dispatcher };
-    }
-    $dispatcher;
+
+    $self->_cache_method($dispatcher);
 }
 
 sub dispatch {
@@ -128,6 +119,17 @@ sub add_method {
     *{"${klass}::${method}"} = $code;
 }
 
+sub _cache_method {
+    my ($self, $stuff) = @_;
+    my $class = $self->app_name;
+
+    my (undef, undef, undef, $sub) = caller(1);
+    $sub = +(split /::/, $sub)[-1];
+    my $code = sub { $stuff };
+    $class->add_method($sub, $code);
+    $stuff;
+}
+
 sub base_dir {
     my $self = shift;
     my $class = $self->app_name;
@@ -144,24 +146,7 @@ sub base_dir {
         }
     };
 
-    {
-        no strict 'refs';
-        *{"$class\::base_dir"} = sub { $base_dir };
-    }
-    $base_dir;
-}
-
-sub base_path {
-    my $self  = shift;
-    my $class = $self->app_name;
-    require Path::Tiny;
-
-    my $path = Path::Tiny::path($self->base_dir);
-    {
-        no strict 'refs';
-        *{"$class\::base_path"} = sub { $path };
-    }
-    $path;
+    $class->_cache_method($base_dir);
 }
 
 sub app_name {
@@ -182,11 +167,7 @@ sub config {
     my $class = $self->app_name;
 
     my $config = $class->load_config;
-    {
-        no strict 'refs';
-        *{"$class\::config"} = sub { $config };
-    }
-    $config;
+    $self->_cache_method($config);
 }
 
 # -------------------------------------------------------------------------

@@ -1,5 +1,4 @@
 requires 'Config::PL';
-requires 'Path::Tiny';
 requires 'Plack';
 requires 'Tiffany';
 requires 'URI::QueryParam';
