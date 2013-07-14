@@ -8,4 +8,4 @@ my $app = PhiloPurple->new(
     template_dir => 'eg/tmpl',
 );
 
-$app->to_app;
+$app->to_psgi;

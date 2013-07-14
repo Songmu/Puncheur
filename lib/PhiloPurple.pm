@@ -19,25 +19,23 @@ use Module::Load ();
 use Scalar::Util ();
 
 sub new {
-    my $class = shift;
+    my $base_class = shift;
     my %args = @_ == 1 ? %{ $_[0] } : @_;
 
-    if ($class eq __PACKAGE__) {
-        $args{app_name} //= 'PhiloPurple::_Sandbox';
-        $class = $args{app_name};
+    $args{app_name} = 'PhiloPurple::_Sandbox'
+        if $base_class eq __PACKAGE__ && !defined $args{app_name};
 
+    my $class = $args{app_name} // $base_class;
+    if ($args{app_name}) {
         local $@;
         eval {
             Module::Load::load($class);
             $class->import if $class->can('import');
         };
         if ($@) {
-            no strict 'refs'; @{"$class\::ISA"} = (__PACKAGE__);
+            no strict 'refs'; @{"$class\::ISA"} = ($base_class);
         }
-        Carp::croak "$class is not PhiloPurple class" unless $class->isa(__PACKAGE__);
-    }
-    else {
-        Carp::croak "can't specify `app_name`" if $args{app_name};
+        Carp::croak "$class is not $base_class class" unless $class->isa($base_class);
     }
     bless { %args }, $class;
 }
@@ -215,7 +213,7 @@ sub uri_for {
 }
 
 
-sub to_app {
+sub to_psgi {
     my ($self, ) = @_;
     return sub { $self->handle_request(shift) };
 }
