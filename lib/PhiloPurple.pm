@@ -46,7 +46,14 @@ sub context { $_CONTEXT }
 # Hook points:
 # You can override these methods.
 sub create_request  { PhiloPurple::Request->new($_[1], $_[0]) }
-sub create_response { shift; PhiloPurple::Response->new(@_) }
+sub create_response {
+    shift;
+    my $res = PhiloPurple::Response->new(@_);
+    $res->header( 'X-Content-Type-Options' => 'nosniff' );
+    $res->header( 'X-Frame-Options'        => 'DENY'    );
+    $res->header( 'Cache-Control'          => 'private' );
+    $res;
+}
 
 sub template_dir {
     my $self = shift;
@@ -348,14 +355,8 @@ sub res_json {
     return $self->create_response(
         200,
         [
-            'Content-type'           => "application/json; charset=$encoding",
-            ### For IE 9 or later. See http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2013-1297
-            'X-Content-Type-Options' => 'nosniff',
-            ### Suppress loading web-page into iframe. See http://blog.mozilla.org/security/2010/09/08/x-frame-options/
-            'X-Frame-Options'        => 'DENY',
-            ### no public cache
-            'Cache-Control'          => 'private',
-            'Content-Length'         => length($body)
+            'Content-type'   => "application/json; charset=$encoding",
+            'Content-Length' => length($body)
         ],
         [ $body ]
     );
