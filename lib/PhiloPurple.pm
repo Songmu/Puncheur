@@ -118,7 +118,10 @@ sub dispatcher {
         $dispatcher_pkg->import if $dispatcher_pkg->can('import');
     };
     if ($@) {
-        my $base_dispatcher_class = $self->{dispatcher} // 'PhiloPurple::Dispatcher::PHPish';
+        my $base_dispatcher_class = $self->{dispatcher} // 'PHPish';
+        unless ($base_dispatcher_class =~ s/^\+//) {
+            $base_dispatcher_class = "PhiloPurple::Dispatcher::$base_dispatcher_class";
+        }
         Module::Load::load($base_dispatcher_class);
         $base_dispatcher_class->import if $base_dispatcher_class->can('import');
         no strict 'refs'; @{"$dispatcher_pkg\::ISA"} = ($base_dispatcher_class);
