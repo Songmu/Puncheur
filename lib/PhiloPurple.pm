@@ -271,19 +271,46 @@ sub render {
 sub res_json {
     my ($self, $data) = @_;
 
-    state $json = JSON->new->utf8;
-    my $body = eval {
-        $json->encode($data);
+    state $json = JSON->new->ascii(1);
+    state $escape = {
+        '+' => '\\u002b', # do not eval as UTF-7
+        '<' => '\\u003c', # do not eval as HTML
+        '>' => '\\u003e', # ditto.
     };
-    local $@;
-    if (my $err = $@) {
-        Carp::croak $err;
+    my $body = $json->encode($data);
+    $body =~ s!([+<>])!$escape->{$1}!g;
+
+    my $user_agent = $self->req->user_agent || '';
+    # defense from JSON hijacking
+    if (
+        (!$self->request->header('X-Requested-With')) &&
+        $user_agent =~ /android/i                     &&
+        defined $self->req->header('Cookie')          &&
+        ($self->req->method||'GET') eq 'GET')
+    {
+        my $content = "Your request may be JSON hijacking.\nIf you are not an attacker, please add 'X-Requested-With' header to each request.";
+        return $self->create_response(
+            403,
+            [
+                'Content-Type'   => $self->html_content_type,
+                'Content-Length' => length($content),
+            ],
+            [$content],
+        );
+    }
+
+    my $encoding = $self->encoding;
+    $encoding = lc $encoding->mime_name if ref $encoding;
+
+    # add UTF-8 BOM if the client is Safari
+    if ( $user_agent =~ m/Safari/ and $encoding eq 'utf-8' ) {
+        $body = "\xEF\xBB\xBF" . $body;
     }
 
     return $self->create_response(
         200,
         [
-            'Content-type'           => 'application/json',
+            'Content-type'           => "application/json; charset=$encoding",
             ### For IE 9 or later. See http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2013-1297
             'X-Content-Type-Options' => 'nosniff',
             ### Suppress loading web-page into iframe. See http://blog.mozilla.org/security/2010/09/08/x-frame-options/
