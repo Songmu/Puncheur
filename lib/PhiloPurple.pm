@@ -41,8 +41,7 @@ sub new {
     bless { %args }, $class;
 }
 our $_CONTEXT;
-sub _context { $_CONTEXT }
-
+sub context { $_CONTEXT }
 # -------------------------------------------------------------------------
 # Hook points:
 # You can override these methods.
@@ -63,18 +62,49 @@ sub template_dir {
     $self->_cache_method(\@tmpl);
 }
 
-sub view {
+sub create_view {
     my $self = shift;
-    my $class = $self->app_name;
+
+    state $settings = {
+        MT => {
+            'Text::MicroTemplate::Extended' => {
+                include_path => $self->template_dir,
+                use_cache    => 1,
+                macro         => {
+                    raw_string => sub($) { Text::MicroTemplate::EncodedString->new($_[0]) },
+                },
+                template_args => {
+                    c => sub { $self->context },
+                    s => sub { $self->context->stash },
+                }
+            },
+        },
+        Xslate => {
+            path => $self->template_dir,
+            module   => [
+                'Text::Xslate::Bridge::Star',
+            ],
+            ($self->debug_mode ? ( warn_handler => sub {
+                Text::Xslate->print( # print method escape html automatically
+                    '[[', @_, ']]',
+                );
+            } ) : () ),
+        },
+    };
+
+    my @args = %{ $settings->{MT} };
+    if (my $v = $self->{view}) {
+        @args = !ref $v ? %{ $settings->{$v} } : %$v;
+    }
 
     require Tiffany;
-    my @args = ref $self && $self->{view} ? %{ $self->{view} } : ('Text::MicroTemplate::Extended', {
-        include_path => $self->template_dir,
-        template_args => { c => sub { $self->_context }, }
-    });
     my $view = Tiffany->load(@args);
+}
 
-    $self->_cache_method($view);
+sub view {
+    my $self = shift;
+
+    $self->_cache_method($self->create_view);
 }
 
 sub dispatcher {
@@ -108,6 +138,10 @@ sub encoding { state $enc = Encode::find_encoding('utf-8') }
 sub session {
     my $self = shift;
     $self->{session} ||= Plack::Session->new($self->request->env);
+}
+
+sub stash {
+    shift->{stash} ||= {};
 }
 
 # -------------------------------------------------------------------------
