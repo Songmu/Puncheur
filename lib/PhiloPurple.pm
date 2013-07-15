@@ -87,15 +87,17 @@ sub create_view {
             },
         },
         Xslate => {
-            path => $self->template_dir,
-            module   => [
-                'Text::Xslate::Bridge::Star',
-            ],
-            ($self->debug_mode ? ( warn_handler => sub {
-                Text::Xslate->print( # print method escape html automatically
-                    '[[', @_, ']]',
-                );
-            } ) : () ),
+            'Text::Xslate' => {
+                path => $self->template_dir,
+                module   => [
+                    'Text::Xslate::Bridge::Star',
+                ],
+                ($self->debug_mode ? ( warn_handler => sub {
+                    Text::Xslate->print( # print method escape html automatically
+                        '[[', @_, ']]',
+                    );
+                } ) : () ),
+            },
         },
     };
 
