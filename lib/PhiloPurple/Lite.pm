@@ -5,6 +5,7 @@ use warnings;
 use PhiloPurple ();
 use PhiloPurple::Dispatcher::Lite ();
 use Data::Section::Simple ();
+use Encode ();
 
 sub import {
     my ($class) = @_;
@@ -33,6 +34,7 @@ sub import {
                     my $path_info = $env->{PATH_INFO};
                     if (my $content = $vpath->{$path_info} and $path_info =~ m{^/}) {
                         my $ct = Plack::MIME->mime_type($path_info);
+                        $content = Encode::encode($self->encoding, $content);
                         return [200, ['Content-Type' => $ct, 'Content-Length' => length($content)], [$content]];
                     }
                     elsif ($path_info =~ qr{^(?:/robots\.txt|/favicon\.ico)$}) {
