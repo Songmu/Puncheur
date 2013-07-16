@@ -141,7 +141,7 @@ sub view {
     $self->_cache_method($self->create_view);
 }
 
-sub dispatcher {
+sub create_dispatcher {
     my $self = shift;
     my $class = $self->app_name;
 
@@ -159,9 +159,13 @@ sub dispatcher {
         no strict 'refs'; @{"$dispatcher_pkg\::ISA"} = ($base_dispatcher);
     }
 
-    my $dispatcher = $dispatcher_pkg->can('new') ? $dispatcher_pkg->new($self) : $dispatcher_pkg;
+    $dispatcher_pkg->can('new') ? $dispatcher_pkg->new($self) : $dispatcher_pkg;
+}
 
-    $self->_cache_method($dispatcher);
+sub dispatcher {
+    my $self = shift;
+
+    $self->_cache_method($self->create_dispatcher);
 }
 
 sub dispatch {
