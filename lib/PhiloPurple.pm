@@ -389,6 +389,32 @@ sub res_json {
 }
 
 # -------------------------------------------------------------------------
+# Plugin
+
+sub load_plugins {
+    my ($class, @args) = @_;
+    while (@args) {
+        my $module = shift @args;
+        my $conf   = @args > 0 && ref $args[0] ? shift @args : undef;
+        $class->load_plugin($module, $conf);
+    }
+}
+
+sub load_plugin {
+    my ($class, $module, $conf) = @_;
+
+    $module = Plack::Util::load_class($module, 'PhiloPurple::Plugin');
+    {
+        no strict 'refs';
+        for my $method ( @{"${module}::EXPORT"} ){
+            use strict 'refs';
+            $class->add_method($method, $module->can($method));
+        }
+    }
+    $module->init($class, $conf) if $module->can('init');
+}
+
+# -------------------------------------------------------------------------
 # Raise Error:
 my %StatusCode = (
     400 => 'Bad Request',
