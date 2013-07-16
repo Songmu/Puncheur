@@ -22,7 +22,7 @@ use Scalar::Util ();
 sub new {
     my ($base_class, %args) = @_;
     %args = (
-        @{ $base_class->setting || {} },
+        @{ $base_class->setting || [] },
         %args,
     );
 
