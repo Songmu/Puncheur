@@ -22,7 +22,7 @@ sub dispatch {
         for my $prefix ('', 'index') {
             my $tmpl_path = File::Spec->catfile($template_dir, $path_info, $prefix ? $prefix : ());
 
-            last if $prefix eq '' && $path_info eq '';
+            next if $prefix eq '' && $path_info eq '';
             return $c->render($tmpl_path) if -e $tmpl_path . '.mt';
         }
     }
