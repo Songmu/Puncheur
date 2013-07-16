@@ -79,7 +79,7 @@ sub template_dir {
     my @tmpl = ref $tmpl ? @$tmpl : ($tmpl);
 
     @tmpl = map {
-        ref $_ || !File::Spec->file_name_is_absolute($_) ?
+        ref $_ || File::Spec->file_name_is_absolute($_) ?
             $_ :
             File::Spec->catfile($self->base_dir, $_)
     } @tmpl;
