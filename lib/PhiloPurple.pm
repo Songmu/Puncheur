@@ -78,10 +78,12 @@ sub template_dir {
     my $tmpl = $self->{template_dir} ? $self->{template_dir} : ['tmpl'];
     my @tmpl = ref $tmpl ? @$tmpl : ($tmpl);
 
-    for (@tmpl) {
-        $_ = File::Spec->catfile($self->base_dir, $_)
-            unless File::Spec->file_name_is_absolute($_);
-    }
+    @tmpl = map {
+        ref $_ || !File::Spec->file_name_is_absolute($_) ?
+            $_ :
+            File::Spec->catfile($self->base_dir, $_)
+    } @tmpl;
+
     $self->_cache_method(\@tmpl);
 }
 
