@@ -20,8 +20,11 @@ use Module::Load ();
 use Scalar::Util ();
 
 sub new {
-    my $base_class = shift;
-    my %args = @_ == 1 ? %{ $_[0] } : @_;
+    my ($base_class, %args) = @_;
+    %args = (
+        @{ $base_class->setting || {} },
+        %args,
+    );
 
     $args{app_name} = 'PhiloPurple::_Sandbox'
         if $base_class eq __PACKAGE__ && !defined $args{app_name};
@@ -42,6 +45,19 @@ sub new {
 }
 our $_CONTEXT;
 sub context { $_CONTEXT }
+
+my %_SETTING;
+sub setting {
+    my ($class, @args) = @_;
+
+    if (@args) {
+        Carp::croak qq[can't set class setting of $class] if $class eq __PACKAGE__;
+
+        push @{ $_SETTING{$class} }, @args if @args;
+    }
+    $_SETTING{$class};
+}
+
 # -------------------------------------------------------------------------
 # Hook points:
 # You can override these methods.
