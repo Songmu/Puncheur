@@ -4,10 +4,17 @@ use warnings;
 use utf8;
 use PhiloPurple::Lite;
 
+enable_session;
+
 any '/' => sub {
     my $c = shift;
 
-    $c->render('index.tx');
+    my $count = $c->session->get('counter');
+    $c->session->set(counter => ++$count);
+
+    $c->render('index.tx', {
+        counter => $count,
+    });
 };
 
 1;
@@ -15,3 +22,4 @@ any '/' => sub {
 __DATA__
 @@ index.tx
 <h1>It Works!</h1>
+<p>あなたは<: $counter :>回目の訪問ですね</p>
