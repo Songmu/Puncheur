@@ -97,6 +97,8 @@ sub create_view {
                 use_cache    => 1,
                 macro         => {
                     raw_string => sub($) { Text::MicroTemplate::EncodedString->new($_[0]) },
+                    uri_for    => sub { $self->context->uri_for(@_) },
+                    uri_with   => sub { $self->context->req->uri_with(@_) }
                 },
                 template_args => {
                     c => sub { $self->context },
@@ -110,6 +112,11 @@ sub create_view {
                 module   => [
                     'Text::Xslate::Bridge::Star',
                 ],
+                function => {
+                    c         => sub { $self->context },
+                    uri_for   => sub { $self->context->uri_for(@_) },
+                    uri_with  => sub { $self->context->req->uri_with(@_) }
+                },
                 ($self->debug_mode ? ( warn_handler => sub {
                     Text::Xslate->print( # print method escape html automatically
                         '[[', @_, ']]',

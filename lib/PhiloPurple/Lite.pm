@@ -14,8 +14,9 @@ sub import {
         no strict 'refs';
         push @{"$caller\::ISA"}, 'PhiloPurple';
     }
+    # TODO: static
     $caller->setting(
-        template_dir => [sub {Data::Section::Simple->new($caller)->get_data_section}],
+        template_dir => [sub {Data::Section::Simple->new($caller)->get_data_section}, 'tmpl'],
         view         => 'Xslate',
     );
 
