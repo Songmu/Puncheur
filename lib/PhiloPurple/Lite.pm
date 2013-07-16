@@ -1,11 +1,12 @@
 package PhiloPurple::Lite;
-use strict;
+use 5.010;
 use warnings;
 
 use PhiloPurple ();
 use PhiloPurple::Dispatcher::Lite ();
 use Data::Section::Simple ();
 use Encode ();
+use MIME::Base64 ();
 
 sub import {
     my ($class) = @_;
@@ -34,7 +35,20 @@ sub import {
                     my $path_info = $env->{PATH_INFO};
                     if (my $content = $vpath->{$path_info} and $path_info =~ m{^/}) {
                         my $ct = Plack::MIME->mime_type($path_info);
-                        $content = Encode::encode($self->encoding, $content);
+                        state $cache = {};
+                        if ($cache->{$caller}{$path_info}) {
+                            $content = $cache->{$caller}{$path_info};
+                        }
+                        else {
+                            if ($ct !~ /\b(?:text|xml|javascript|json)\b/) {
+                                # binary
+                                $content = MIME::Base64::decode_base64($content);
+                            }
+                            else {
+                                $content = Encode::encode($self->encoding, $content);
+                            }
+                            $cache->{$caller}{$path_info} = $content;
+                        }
                         return [200, ['Content-Type' => $ct, 'Content-Length' => length($content)], [$content]];
                     }
                     elsif ($path_info =~ qr{^(?:/robots\.txt|/favicon\.ico)$}) {
