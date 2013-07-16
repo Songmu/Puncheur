@@ -13,10 +13,10 @@ use File::Spec;
 use JSON;
 use URL::Encode;
 use Plack::Session;
+use Plack::Util;
 use PhiloPurple::Request;
 use PhiloPurple::Response;
 use PhiloPurple::Trigger qw/add_trigger call_trigger get_trigger_code/;
-use Module::Load ();
 use Scalar::Util ();
 
 sub new {
@@ -33,7 +33,7 @@ sub new {
     if ($args{app_name}) {
         local $@;
         eval {
-            Module::Load::load($class);
+            Plack::Util::load_class($class);
             $class->import if $class->can('import');
         };
         if ($@) {
@@ -148,17 +148,15 @@ sub dispatcher {
     my $dispatcher_pkg = $class . '::Dispatcher';
     local $@;
     eval {
-        Module::Load::load($dispatcher_pkg);
+        Plack::Util::load_class($dispatcher_pkg);
         $dispatcher_pkg->import if $dispatcher_pkg->can('import');
     };
     if ($@) {
-        my $base_dispatcher_class = $self->{dispatcher} // 'PHPish';
-        unless ($base_dispatcher_class =~ s/^\+//) {
-            $base_dispatcher_class = "PhiloPurple::Dispatcher::$base_dispatcher_class";
-        }
-        Module::Load::load($base_dispatcher_class);
-        $base_dispatcher_class->import if $base_dispatcher_class->can('import');
-        no strict 'refs'; @{"$dispatcher_pkg\::ISA"} = ($base_dispatcher_class);
+        my $base_dispatcher = $self->{dispatcher} // 'PHPish';
+
+        $base_dispatcher = Plack::Util::load_class($base_dispatcher, 'PhiloPurple::Dispatcher');
+        $base_dispatcher->import if $base_dispatcher->can('import');
+        no strict 'refs'; @{"$dispatcher_pkg\::ISA"} = ($base_dispatcher);
     }
 
     my $dispatcher = $dispatcher_pkg->can('new') ? $dispatcher_pkg->new($self) : $dispatcher_pkg;
