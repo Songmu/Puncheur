@@ -5,11 +5,8 @@ use utf8;
 
 use parent 'PhiloPurple';
 
-sub bootstrap {
-    my $class = shift;
-    my $self = $class->new(
-        view => 'Xslate',
-    );
-}
+__PACKAGE__->setting(
+    view => 'Xslate',
+);
 
 1;
