@@ -30,19 +30,26 @@ sub to_psgi {
             my $path_info = $env->{PATH_INFO};
             if ($vpath and my $content = $vpath->{$path_info} and $path_info =~ m{^/}) {
                 my $ct = Plack::MIME->mime_type($path_info);
+
+                my $is_text = qr/\b(?:text|xml|javascript|json)\b/;
                 state $cache = {};
                 if ($cache->{$app_name}{$path_info}) {
                     $content = $cache->{$app_name}{$path_info};
                 }
                 else {
-                    if ($ct !~ /\b(?:text|xml|javascript|json)\b/) {
-                        # binary
-                        $content = decode_base64($content);
-                    }
-                    else {
+                    if ($ct =~ $is_text) {
                         $content = encode($self->encoding, $content);
                     }
+                    else {
+                        $content = decode_base64($content);
+                    }
                     $cache->{$app_name}{$path_info} = $content;
+                }
+
+                if ($ct =~ $is_text) {
+                    my $encoding = $self->encoding;
+                    $encoding = lc $encoding->mime_name if ref $encoding;
+                    $ct .= "; charset=$encoding";
                 }
                 return [200, ['Content-Type' => $ct, 'Content-Length' => length($content)], [$content]];
             }
