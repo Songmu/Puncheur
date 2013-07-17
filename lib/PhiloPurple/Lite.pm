@@ -2,11 +2,11 @@ package PhiloPurple::Lite;
 use 5.010;
 use warnings;
 
+use File::Spec;
+use Data::Section::Simple ();
+
 use PhiloPurple ();
 use PhiloPurple::Dispatcher::Lite ();
-use Data::Section::Simple ();
-use Encode ();
-use MIME::Base64 ();
 
 sub import {
     my ($class) = @_;
@@ -55,8 +55,11 @@ sub import {
         };
     }
 
+    my $tmpl = sub {
+        $caller->can('share_dir') ? File::Spec->catdir($caller->share_dir, 'tmpl') : 'tmpl';
+    };
     $caller->setting(
-        template_dir => [sub {Data::Section::Simple->new($caller)->get_data_section}, 'tmpl'],
+        template_dir => [sub {Data::Section::Simple->new($caller)->get_data_section}, $tmpl],
         view         => 'Xslate',
     );
 

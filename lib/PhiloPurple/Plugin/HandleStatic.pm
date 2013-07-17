@@ -2,6 +2,9 @@ package PhiloPurple::Plugin::HandleStatic;
 use 5.010;
 use warnings;
 
+use MIME::Base64;
+use Encode;
+
 @EXPORT = qw/to_psgi/;
 
 sub to_psgi {
@@ -20,7 +23,7 @@ sub to_psgi {
         my $app_file_1;
         my $app_file_2;
 
-        my $base_dir   = $self->base_dir;
+        my $base_dir   = $self->can('share_dir') ? $self->share_dir : $self->base_dir;
         my $static_dir = File::Spec->catdir( $base_dir, 'static' );
         $app = sub {
             my $env = shift;
@@ -34,10 +37,10 @@ sub to_psgi {
                 else {
                     if ($ct !~ /\b(?:text|xml|javascript|json)\b/) {
                         # binary
-                        $content = MIME::Base64::decode_base64($content);
+                        $content = decode_base64($content);
                     }
                     else {
-                        $content = Encode::encode($self->encoding, $content);
+                        $content = encode($self->encoding, $content);
                     }
                     $cache->{$app_name}{$path_info} = $content;
                 }
@@ -56,7 +59,6 @@ sub to_psgi {
             }
         };
     }
-
     $app;
 }
 
