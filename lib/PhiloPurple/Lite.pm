@@ -19,6 +19,7 @@ sub import {
         *{"$caller\::to_psgi"} = sub {
             use strict 'refs';
             my ($self, %opts) = @_;
+            $self = $self->new unless ref $self;
 
             my $app = $self->PhiloPurple::to_psgi;
             if (delete $opts{handle_static} || $self->{handle_static}) {

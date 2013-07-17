@@ -301,6 +301,8 @@ sub uri_for {
 
 sub to_psgi {
     my ($self, ) = @_;
+
+    $self = $self->new unless ref $self;
     return sub { $self->handle_request(shift) };
 }
 
