@@ -103,6 +103,12 @@ sub import {
         view         => 'Xslate',
     );
 
+    strict->import;
+    warnings->import;
+    utf8->import;
+    require feature;
+    feature->import(':5.10');
+
     goto do { PhiloPurple::Dispatcher::Lite->can('import') };
 }
 
