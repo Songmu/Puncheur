@@ -6,6 +6,7 @@ enable_session;
 __PACKAGE__->setting(
     handle_static => 1,
 );
+__PACKAGE__->load_plugins('JSON');
 
 any '/' => sub {
     my $c = shift;
@@ -14,6 +15,17 @@ any '/' => sub {
     $c->session->set(counter => ++$count);
 
     $c->render('index.tx', {
+        counter => $count,
+    });
+};
+
+any '/api' => sub {
+    my $c = shift;
+
+    my $count = $c->session->get('counter');
+    $c->session->set(counter => ++$count);
+
+    $c->res_json({
         counter => $count,
     });
 };

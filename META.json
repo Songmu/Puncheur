@@ -42,7 +42,12 @@
       },
       "runtime" : {
          "requires" : {
-            "perl" : "5.008005"
+            "Config::PL" : "0",
+            "Plack" : "0",
+            "Tiffany" : "0",
+            "URI::QueryParam" : "0",
+            "URL::Encode" : "0",
+            "perl" : "5.010"
          }
       },
       "test" : {
@@ -52,5 +57,16 @@
       }
    },
    "release_status" : "unstable",
+   "resources" : {
+      "bugtracker" : {
+         "web" : "https://github.com/Songmu/PhiloPurple/issues"
+      },
+      "homepage" : "https://github.com/Songmu/PhiloPurple",
+      "repository" : {
+         "type" : "git",
+         "url" : "git://github.com/Songmu/PhiloPurple.git",
+         "web" : "https://github.com/Songmu/PhiloPurple"
+      }
+   },
    "version" : "0.01"
 }
