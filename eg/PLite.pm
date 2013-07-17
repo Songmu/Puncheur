@@ -1,7 +1,4 @@
 package PLite;
-use strict;
-use warnings;
-use utf8;
 use PhiloPurple::Lite;
 
 enable_session;
