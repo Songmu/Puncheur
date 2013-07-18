@@ -1,1 +1,2 @@
-- enable_session doesn' work in PhiloPurple::Runner
+- parse_options for PhiloPurple::Runner
+- rename to 'Puncheur'
