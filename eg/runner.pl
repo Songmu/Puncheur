@@ -9,3 +9,16 @@ PhiloPurple::Runner->new('PLite', {
     server => 'Starlet',
     port   => 1988,
 })->run;
+
+=comment
+
+# how is this interface.
+
+my $runner = PhiloPurple::Runner->new('PLite', {
+    server => 'Starlet',
+    port   => 1988,
+}, {
+    view => 'MT',
+});
+$runner->parse_options(@ARGV);
+$runner->run;
