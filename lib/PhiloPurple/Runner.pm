@@ -6,7 +6,7 @@ use Plack::Runner;
 use Plack::Util;
 
 sub new {
-    my ($class, $app, $plackup_options, $app_options) = @_;
+    my ($class, $app, $plackup_options) = @_;
     $app = Plack::Util::load_class($app);
 
     my @argv = @ARGV;
@@ -31,7 +31,6 @@ sub new {
         app => $app,
         runner   => $runner,
         app_options => {
-            %{ $app_options || {} },
             %options,
         }
     }, $class;
