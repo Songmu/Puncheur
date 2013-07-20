@@ -8,7 +8,6 @@ use PhiloPurple::Dispatcher::Lite;
 use Data::Section::Simple ();
 __PACKAGE__->setting(
     template_dir => [Data::Section::Simple::get_data_section],
-    view         => 'Xslate',
 );
 
 any '/' => sub {

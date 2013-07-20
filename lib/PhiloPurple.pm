@@ -128,7 +128,7 @@ sub create_view {
         },
     };
 
-    my @args = %{ $settings->{MT} };
+    my @args = %{ $settings->{Xslate} };
     if (my $v = $self->{view}) {
         @args = !ref $v ? %{ $settings->{$v} } : %$v;
     }
