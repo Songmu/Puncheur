@@ -59,13 +59,13 @@
    "release_status" : "unstable",
    "resources" : {
       "bugtracker" : {
-         "web" : "https://github.com/Songmu/PhiloPurple/issues"
+         "web" : "https://github.com/Songmu/Puncheur/issues"
       },
-      "homepage" : "https://github.com/Songmu/PhiloPurple",
+      "homepage" : "https://github.com/Songmu/Puncheur",
       "repository" : {
          "type" : "git",
-         "url" : "git://github.com/Songmu/PhiloPurple.git",
-         "web" : "https://github.com/Songmu/PhiloPurple"
+         "url" : "git://github.com/Songmu/Puncheur.git",
+         "web" : "https://github.com/Songmu/Puncheur"
       }
    },
    "version" : "0.01"
