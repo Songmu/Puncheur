@@ -20,7 +20,7 @@ use Scalar::Util ();
 sub new {
     my ($base_class, %args) = @_;
     %args = (
-        @{ $base_class->setting || [] },
+        %{ $base_class->setting || {} },
         %args,
     );
 
@@ -46,12 +46,16 @@ sub context { $_CONTEXT }
 
 my %_SETTING;
 sub setting {
-    my ($class, @args) = @_;
+    my ($class, %args) = @_;
 
-    if (@args) {
+    if (%args) {
         Carp::croak qq[can't set class setting of $class] if $class eq __PACKAGE__;
 
-        push @{ $_SETTING{$class} }, @args if @args;
+        my %prev = %{ $_SETTING{$class} || {} };
+        $_SETTING{$class} = {
+            %prev,
+            %args,
+        };
     }
     $_SETTING{$class};
 }
