@@ -7,8 +7,8 @@ use Plack::Util;
 
 sub new {
     my ($class, $app, $plackup_options) = @_;
+    $plackup_options ||= {};
     $app = Plack::Util::load_class($app);
-
     my @argv = @ARGV;
 
     my @default;
