@@ -6,28 +6,44 @@ use Plack::Runner;
 use Plack::Util;
 
 sub new {
-    my ($class, $app, $default) = @_;
+    my ($class, $app, $plackup_options, $app_options) = @_;
     $app = Plack::Util::load_class($app);
 
     my @argv = @ARGV;
 
     my @default;
-    while (my ($key, $value) = each %$default) {
+    while (my ($key, $value) = each %$plackup_options) {
         push @default, "--$key=$value";
     }
     my $runner = Plack::Runner->new;
     $runner->parse_options(@default, @argv);
 
-    my %options = @{ $runner->{options} };
-    delete $options{$_} for qw/listen socket/;
-    $app = $app->new(%options);
+    my %options;
+    if ($app->can('parse_options')) {
+        %options = $app->parse_options(@argv);
+    }
+    else {
+        %options = @{ $runner->{options} };
+        delete $options{$_} for qw/listen socket/;
+    }
 
-    bless {app => $app, runner => $runner}, $class;
+    bless {
+        app => $app,
+        runner   => $runner,
+        app_options => {
+            %{ $app_options || {} },
+            %options,
+        }
+    }, $class;
 }
 
 sub run {
     my $self = shift;
-    $self->{runner}->run($self->{app}->to_psgi);
+    my %opts = @_ == 1 ? %{$_[0]} : @_;
+
+    my $app_options = $self->{app_options};
+    my $psgi = $self->{app}->new(%$app_options, %opts)->to_psgi;
+    $self->{runner}->run($psgi);
 }
 
 1;
