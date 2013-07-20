@@ -1,4 +1,4 @@
-package PhiloPurple::Dispatcher::PHPish;
+package Puncheur::Dispatcher::PHPish;
 use strict;
 use warnings;
 use utf8;

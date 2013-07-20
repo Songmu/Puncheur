@@ -1,4 +1,4 @@
-package PhiloPurple::Trigger;
+package Puncheur::Trigger;
 use strict;
 use warnings;
 

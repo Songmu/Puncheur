@@ -3,7 +3,7 @@ use warnings;
 use utf8;
 use Test::More;
 
-use PhiloPurple::Response;
-pass 'load PhiloPurple::Response ok';
+use Puncheur::Response;
+pass 'load Puncheur::Response ok';
 
 done_testing;

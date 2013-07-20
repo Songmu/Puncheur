@@ -2,7 +2,7 @@ package MonMonMon::Dispatcher;
 use strict;
 use warnings;
 use utf8;
-use PhiloPurple::Dispatcher::Lite;
+use Puncheur::Dispatcher::Lite;
 
 any '/' => sub {
     my $c = shift;

@@ -1,14 +1,14 @@
 # NAME
 
-PhiloPurple - It's new $module
+Puncheur - It's new $module
 
 # SYNOPSIS
 
-    use PhiloPurple;
+    use Puncheur;
 
 # DESCRIPTION
 
-PhiloPurple is ...
+Puncheur is ...
 
 # LICENSE
 

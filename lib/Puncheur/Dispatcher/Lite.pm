@@ -1,4 +1,4 @@
-package PhiloPurple::Dispatcher::Lite;
+package Puncheur::Dispatcher::Lite;
 use strict;
 use warnings;
 use Router::Simple 0.14;

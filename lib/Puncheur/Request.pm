@@ -1,4 +1,4 @@
-package PhiloPurple::Request;
+package Puncheur::Request;
 use strict;
 use warnings;
 

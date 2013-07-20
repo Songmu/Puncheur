@@ -3,9 +3,9 @@ use 5.010;
 use warnings;
 use utf8;
 
-use PhiloPurple::Runner;
+use Puncheur::Runner;
 
-PhiloPurple::Runner->new('PLite', {
+Puncheur::Runner->new('PLite', {
     server => 'Starlet',
     port   => 1988,
 })->run;
@@ -14,7 +14,7 @@ PhiloPurple::Runner->new('PLite', {
 
 # how is this interface.
 
-my $runner = PhiloPurple::Runner->new('PLite', {
+my $runner = Puncheur::Runner->new('PLite', {
     server => 'Starlet',
     port   => 1988,
 }, {

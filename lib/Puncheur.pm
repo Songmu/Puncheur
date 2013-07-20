@@ -1,4 +1,4 @@
-package PhiloPurple;
+package Puncheur;
 use 5.010;;
 use warnings;
 
@@ -12,9 +12,9 @@ use File::Spec;
 use URL::Encode;
 use Plack::Session;
 use Plack::Util;
-use PhiloPurple::Request;
-use PhiloPurple::Response;
-use PhiloPurple::Trigger qw/add_trigger call_trigger get_trigger_code/;
+use Puncheur::Request;
+use Puncheur::Response;
+use Puncheur::Trigger qw/add_trigger call_trigger get_trigger_code/;
 use Scalar::Util ();
 
 sub new {
@@ -24,7 +24,7 @@ sub new {
         %args,
     );
 
-    $args{app_name} = 'PhiloPurple::_Sandbox'
+    $args{app_name} = 'Puncheur::_Sandbox'
         if $base_class eq __PACKAGE__ && !defined $args{app_name};
 
     my $class = $args{app_name} // $base_class;
@@ -63,10 +63,10 @@ sub setting {
 # -------------------------------------------------------------------------
 # Hook points:
 # You can override these methods.
-sub create_request  { PhiloPurple::Request->new($_[1], $_[0]) }
+sub create_request  { Puncheur::Request->new($_[1], $_[0]) }
 sub create_response {
     shift;
-    my $res = PhiloPurple::Response->new(@_);
+    my $res = Puncheur::Response->new(@_);
     $res->header( 'X-Content-Type-Options' => 'nosniff' );
     $res->header( 'X-Frame-Options'        => 'DENY'    );
     $res->header( 'Cache-Control'          => 'private' );
@@ -156,7 +156,7 @@ sub create_dispatcher {
     if ($@) {
         my $base_dispatcher = $self->{dispatcher} // 'PHPish';
 
-        $base_dispatcher = Plack::Util::load_class($base_dispatcher, 'PhiloPurple::Dispatcher');
+        $base_dispatcher = Plack::Util::load_class($base_dispatcher, 'Puncheur::Dispatcher');
         $base_dispatcher->import if $base_dispatcher->can('import');
         no strict 'refs'; @{"$dispatcher_pkg\::ISA"} = ($base_dispatcher);
     }
@@ -361,7 +361,7 @@ sub load_plugins {
 sub load_plugin {
     my ($class, $module, $conf) = @_;
 
-    $module = Plack::Util::load_class($module, 'PhiloPurple::Plugin');
+    $module = Plack::Util::load_class($module, 'Puncheur::Plugin');
     {
         no strict 'refs';
         for my $method ( @{"${module}::EXPORT"} ){
@@ -455,15 +455,15 @@ __END__
 
 =head1 NAME
 
-PhiloPurple - It's new $module
+Puncheur - It's new $module
 
 =head1 SYNOPSIS
 
-    use PhiloPurple;
+    use Puncheur;
 
 =head1 DESCRIPTION
 
-PhiloPurple is ...
+Puncheur is ...
 
 =head1 LICENSE
 

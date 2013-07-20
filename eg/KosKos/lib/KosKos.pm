@@ -3,8 +3,8 @@ use strict;
 use warnings;
 use utf8;
 
-use parent 'PhiloPurple';
-use PhiloPurple::Dispatcher::Lite;
+use parent 'Puncheur';
+use Puncheur::Dispatcher::Lite;
 use Data::Section::Simple ();
 __PACKAGE__->setting(
     template_dir => [Data::Section::Simple::get_data_section],

@@ -1,5 +1,5 @@
 package PLite;
-use PhiloPurple::Lite;
+use Puncheur::Lite;
 
 enable_session;
 

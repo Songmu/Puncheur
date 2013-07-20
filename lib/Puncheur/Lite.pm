@@ -1,12 +1,12 @@
-package PhiloPurple::Lite;
+package Puncheur::Lite;
 use 5.010;
 use warnings;
 
 use File::Spec;
 use Data::Section::Simple ();
 
-use PhiloPurple ();
-use PhiloPurple::Dispatcher::Lite ();
+use Puncheur ();
+use Puncheur::Dispatcher::Lite ();
 
 sub import {
     my ($class) = @_;
@@ -14,7 +14,7 @@ sub import {
 
     {
         no strict 'refs';
-        push @{"$caller\::ISA"}, 'PhiloPurple';
+        push @{"$caller\::ISA"}, 'Puncheur';
 
         $caller->load_plugin('HandleStatic');
         my $to_psgi = $caller->can('to_psgi');
@@ -68,7 +68,7 @@ sub import {
     require feature;
     feature->import(':5.10');
 
-    goto do { PhiloPurple::Dispatcher::Lite->can('import') };
+    goto do { Puncheur::Dispatcher::Lite->can('import') };
 }
 
 1;

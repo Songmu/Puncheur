@@ -1,4 +1,4 @@
-package PhiloPurple::Plugin::ShareDir;
+package Puncheur::Plugin::ShareDir;
 use 5.010;
 use warnings;
 
@@ -17,7 +17,7 @@ sub share_dir {
         my $d1 = File::Spec->catfile($c->base_dir, 'share');
         return $d1 if -d $d1;
 
-        my $dist = first { $_ ne 'PhiloPurple' && $_->isa('PhiloPurple') } reverse @{mro::get_linear_isa(ref $c || $c)};
+        my $dist = first { $_ ne 'Puncheur' && $_->isa('Puncheur') } reverse @{mro::get_linear_isa(ref $c || $c)};
            $dist =~ s!::!-!g;
         my $d2 = File::ShareDir::dist_dir($dist);
         return $d2 if -d $d2;

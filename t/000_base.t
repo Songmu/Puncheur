@@ -3,11 +3,11 @@ use warnings;
 use utf8;
 use Test::More;
 
-use PhiloPurple;
-pass 'use PhiloPurple ok';
+use Puncheur;
+pass 'use Puncheur ok';
 
-my $app = PhiloPurple->new;
+my $app = Puncheur->new;
 ok $app;
-isa_ok $app, 'PhiloPurple';
+isa_ok $app, 'Puncheur';
 
 done_testing;

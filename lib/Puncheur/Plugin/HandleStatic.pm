@@ -1,4 +1,4 @@
-package PhiloPurple::Plugin::HandleStatic;
+package Puncheur::Plugin::HandleStatic;
 use 5.010;
 use warnings;
 
@@ -11,7 +11,7 @@ sub to_psgi {
     my ($self, %opts) = @_;
     $self = $self->new unless ref $self;
 
-    my $app = $self->PhiloPurple::to_psgi;
+    my $app = $self->Puncheur::to_psgi;
     if (delete $opts{handle_static} || $self->{handle_static}) {
         my $vpath = sub {
             for my $dir (@{ $self->template_dir }) {

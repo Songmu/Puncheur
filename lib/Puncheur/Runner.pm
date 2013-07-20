@@ -1,4 +1,4 @@
-package PhiloPurple::Runner;
+package Puncheur::Runner;
 use strict;
 use warnings;
 

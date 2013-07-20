@@ -1,4 +1,4 @@
-package PhiloPurple::Response;
+package Puncheur::Response;
 use strict;
 use warnings;
 use utf8;
