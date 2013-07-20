@@ -24,8 +24,10 @@ sub new {
         %args,
     );
 
-    $args{app_name} = 'Puncheur::_Sandbox'
-        if $base_class eq __PACKAGE__ && !defined $args{app_name};
+    if ($base_class eq __PACKAGE__ && !defined $args{app_name}) {
+        state $count = 0;
+        $args{app_name} = "Puncheur::_Sandbox" . $count++;
+    }
 
     my $class = $args{app_name} // $base_class;
     if ($args{app_name}) {
