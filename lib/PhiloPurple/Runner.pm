@@ -28,11 +28,9 @@ sub new {
     }
 
     bless {
-        app => $app,
-        runner   => $runner,
-        app_options => {
-            %options,
-        }
+        app         => $app,
+        runner      => $runner,
+        app_options => \%options,
     }, $class;
 }
 
