@@ -1,5 +1,5 @@
 package Puncheur::Plugin::JSON;
-use 5.010;;
+use 5.010;
 use warnings;
 use JSON;
 

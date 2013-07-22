@@ -1,5 +1,5 @@
 package Puncheur;
-use 5.010;;
+use 5.010;
 use warnings;
 
 our $VERSION = "0.01";
