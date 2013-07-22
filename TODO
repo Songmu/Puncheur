@@ -1,3 +1,5 @@
 - parse_options for Puncheur::Runner
+- filter in Dispatcher::Lite
+- Plugin::Model
 - documentation
 - test
