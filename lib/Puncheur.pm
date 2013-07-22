@@ -130,9 +130,12 @@ sub create_view {
         },
     };
 
-    my @args = %{ $settings->{Xslate} };
+    my @args;
     if (my $v = $self->{view}) {
         @args = !ref $v ? %{ $settings->{$v} } : %$v;
+    }
+    else {
+        @args = %{ $settings->{Xslate} };
     }
 
     require Tiffany;
@@ -238,7 +241,7 @@ sub app_name {
 }
 
 sub mode_name  { $ENV{PLACK_ENV} }
-sub debug_mode { $ENV{PHILOPURPLE_DEBUG} }
+sub debug_mode { $ENV{PUNCHEUR_DEBUG} }
 
 sub load_config {
     my $self = shift;
@@ -449,7 +452,6 @@ sprintf q[<!doctype html>
 </html>], $code, $msg;
 }
 
-
 1;
 __END__
 
@@ -461,11 +463,51 @@ Puncheur - It's new $module
 
 =head1 SYNOPSIS
 
-    use Puncheur;
+    package MyApp;
+    use parent 'Puncheur';
+    use Puncheur::Dispatcher::Lite;
+    use Data::Section::Simple ();
+    __PACKAGE__->setting(
+        template_dir => [Data::Section::Simple::get_data_section],
+    );
+    any '/' => sub {
+        my $c = shift;
+        $c->render('index.tx');
+    };
+    1;
+    __DATA__
+    @@ index.tx
+    <h1>It Works!</h1>
+
+And in your console,
+
+    % plackup -MMyApp -e 'MyApp->new->to_psgi'
 
 =head1 DESCRIPTION
 
-Puncheur is ...
+Puncheur is a web application framework.
+
+=head1 INTERFACE
+
+=head2 Constructor
+
+=head3 new
+
+    my $app = MyApp->new(%opt);
+
+=over
+
+=item view
+
+=item config
+
+=item dispatcher
+
+=item template_dir
+
+=item app_name
+
+=back
 
 =head1 LICENSE
 
