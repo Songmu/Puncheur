@@ -208,7 +208,7 @@ sub add_method {
 
 sub _cache_method {
     my ($self, $stuff) = @_;
-    return $stuff unless ref $self;
+    return $stuff unless ref $self; # don't cache in class method
 
     my $class = $self->app_name;
 
