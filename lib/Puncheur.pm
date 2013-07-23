@@ -209,6 +209,8 @@ sub add_method {
 
 sub _cache_method {
     my ($self, $stuff) = @_;
+    return $stuff unless ref $self;
+
     my $class = $self->app_name;
 
     my (undef, undef, undef, $sub) = caller(1);
