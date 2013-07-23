@@ -9,10 +9,10 @@ use Clone qw/clone/;
 use Config::PL ();
 use Encode;
 use File::Spec;
-use URL::Encode;
 use Plack::Session;
 use Plack::Util;
 use Scalar::Util ();
+use URL::Encode;
 
 use Puncheur::Request;
 use Puncheur::Response;
@@ -65,7 +65,7 @@ sub setting {
 
 # -------------------------------------------------------------------------
 # Hook points:
-# You can override these methods.
+# You can override them.
 sub create_request  { Puncheur::Request->new($_[1], $_[0]) }
 sub create_response {
     shift;
@@ -76,6 +76,59 @@ sub create_response {
     $res;
 }
 
+# -------------------------------------------------------------------------
+# Application settings:
+sub app_name {
+    my $self = shift;
+    ref $self || $self;
+}
+
+sub asset_dir {
+    my $self = shift;
+
+    my $asset_dir;
+    if (ref $self and $assset_dir = $self->{asset_dir}) {
+        $asset_dir = File::Spec->catfile($self->base_dir, $assset_dir)
+            unless File::Spec->file_name_is_absolute($asset_dir);
+    }
+    elsif ($self->can('share_dir')) {
+        $asset_dir = $self->share_dir;
+    }
+    else {
+        $asset_dir = File::Spec->catfile($self->base_dir, 'share');
+    }
+    $self->_cache_method($asset_dir);
+}
+
+sub base_dir {
+    my $self = shift;
+    my $class = $self->app_name;
+
+    my $base_dir = do {
+        my $path = $class;
+        $path =~ s!::!/!g;
+        if (!$self->{app_name} and my $libpath = $INC{"$path.pm"}) {
+            $libpath =~ s!\\!/!g; # win32
+            $libpath =~ s!(?:blib/)?lib/+$path\.pm$!!;
+            File::Spec->rel2abs($libpath || './');
+        } else {
+            File::Spec->rel2abs('./');
+        }
+    };
+
+    $class->_cache_method($base_dir);
+}
+
+sub mode_name  { $ENV{PLACK_ENV} }
+sub debug_mode { $ENV{PUNCHEUR_DEBUG} }
+
+# you can override 2 methods below
+sub html_content_type { 'text/html; charset=UTF-8' }
+sub encoding { state $enc = Encode::find_encoding('utf-8') }
+
+# -------------------------------------------------------------------------
+# view and render:
+# You can override them
 sub template_dir {
     my $self = shift;
     my $class = $self->app_name;
@@ -149,6 +202,28 @@ sub view {
     $self->_cache_method($self->create_view);
 }
 
+sub render {
+    my $self = shift;
+    my $html = $self->view->render(@_);
+
+    for my $code ($self->get_trigger_code('HTML_FILTER')) {
+        $html = $code->($self, $html);
+    }
+
+    $html = Encode::encode($self->encoding, $html);
+    return $self->create_response(
+        200,
+        [
+            'Content-Type'   => $self->html_content_type,
+            'Content-Length' => length($html)
+        ],
+        [$html],
+    );
+}
+
+# -------------------------------------------------------------------------
+# dispatcher and dispatch:
+# You can override them
 sub create_dispatcher {
     my $self = shift;
     my $class = $self->app_name;
@@ -181,25 +256,29 @@ sub dispatch {
     $self->dispatcher->dispatch($self);
 }
 
-sub html_content_type { 'text/html; charset=UTF-8' }
-sub encoding { state $enc = Encode::find_encoding('utf-8') }
-sub session {
+# -------------------------------------------------------------------------
+# Config:
+# You can override them
+sub load_config {
     my $self = shift;
-    $self->{session} ||= Plack::Session->new($self->request->env);
-}
 
-sub stash {
-    shift->{stash} ||= {};
+    my $config_file = $self->{config} || File::Spec->catfile($self->asset_dir, 'config.pl');
+    return $config_file if ref $config_file;
+    $config_file = File::Spec->catfile($self->base_dir, $config_file)
+        unless File::Spec->file_name_is_absolute($config_file);
+
+    -e $config_file ? Config::PL::config_do($config_file) : {};
+}
+sub config {
+    my $self = shift;
+    my $class = $self->app_name;
+
+    my $config = $class->load_config;
+    $self->_cache_method($config);
 }
 
 # -------------------------------------------------------------------------
-# Attributes:
-sub request           { $_[0]->{request} }
-sub req               { $_[0]->{request} }
-
-# -------------------------------------------------------------------------
-# Util
-
+# Util:
 sub add_method {
     my ($klass, $method, $code) = @_;
     no strict 'refs';
@@ -219,67 +298,19 @@ sub _cache_method {
     $stuff;
 }
 
-sub base_dir {
-    my $self = shift;
-    my $class = $self->app_name;
+# -------------------------------------------------------------------------
+# Attributes:
+sub request           { $_[0]->{request} }
+sub req               { $_[0]->{request} }
 
-    my $base_dir = do {
-        my $path = $class;
-        $path =~ s!::!/!g;
-        if (!$self->{app_name} and my $libpath = $INC{"$path.pm"}) {
-            $libpath =~ s!\\!/!g; # win32
-            $libpath =~ s!(?:blib/)?lib/+$path\.pm$!!;
-            File::Spec->rel2abs($libpath || './');
-        } else {
-            File::Spec->rel2abs('./');
-        }
-    };
-
-    $class->_cache_method($base_dir);
+sub session {
+    my $c = shift;
+    $c->{session} ||= Plack::Session->new($c->request->env);
 }
 
-sub app_name {
-    my $self = shift;
-    ref $self || $self;
-}
-
-sub mode_name  { $ENV{PLACK_ENV} }
-sub debug_mode { $ENV{PUNCHEUR_DEBUG} }
-
-sub load_config {
-    my $self = shift;
-
-    my $config_file = $self->{config} || File::Spec->catfile($self->asset_dir, 'config.pl');
-    return $config_file if ref $config_file;
-    $config_file = File::Spec->catfile($self->base_dir, $config_file)
-        unless File::Spec->file_name_is_absolute($config_file);
-
-    -e $config_file ? Config::PL::config_do($config_file) : {};
-}
-sub config {
-    my $self = shift;
-    my $class = $self->app_name;
-
-    my $config = $class->load_config;
-    $self->_cache_method($config);
-}
-
-sub asset_dir {
-    my $self = shift;
-
-    my $asset_dir;
-    if (ref $self and $assset_dir = $self->{asset_dir}) {
-        $asset_dir = File::Spec->catfile($self->base_dir, $assset_dir)
-            unless File::Spec->file_name_is_absolute($asset_dir);
-    }
-    elsif ($self->can('share_dir')) {
-        $asset_dir = $self->share_dir;
-    }
-    else {
-        $asset_dir = File::Spec->catfile($self->base_dir, 'share');
-    }
-
-    $self->_cache_method($asset_dir);
+sub stash {
+    my $c = shift;
+    $c->{stash} ||= {};
 }
 
 # -------------------------------------------------------------------------
@@ -326,6 +357,8 @@ sub uri_for {
     $root . $path . (scalar @q ? '?' . join('&', @q) : '');
 }
 
+# -------------------------------------------------------------------------
+# PSGInise:
 sub to_psgi {
     my ($self, ) = @_;
 
@@ -353,28 +386,8 @@ PROCESS_END:
     return $response->finalize;
 }
 
-sub render {
-    my $self = shift;
-    my $html = $self->view->render(@_);
-
-    for my $code ($self->get_trigger_code('HTML_FILTER')) {
-        $html = $code->($self, $html);
-    }
-
-    $html = Encode::encode($self->encoding, $html);
-    return $self->create_response(
-        200,
-        [
-            'Content-Type'   => $self->html_content_type,
-            'Content-Length' => length($html)
-        ],
-        [$html],
-    );
-}
-
 # -------------------------------------------------------------------------
 # Plugin
-
 sub load_plugins {
     my ($class, @args) = @_;
     while (@args) {
@@ -459,6 +472,7 @@ while ( my ($code, $msg) = each %StatusCode) {
     }
 }
 
+# You can override it
 sub error_html {
     my ($self, $code, $msg) = @_;
 sprintf q[<!doctype html>
