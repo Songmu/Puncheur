@@ -56,7 +56,7 @@ sub import {
     }
 
     my $tmpl = sub {
-        $caller->can('share_dir') ? File::Spec->catdir($caller->share_dir, 'tmpl') : 'tmpl';
+        File::Spec->catdir($caller->asset_dir, 'tmpl');
     };
     $caller->setting(
         template_dir => [sub {Data::Section::Simple->new($caller)->get_data_section}, $tmpl],

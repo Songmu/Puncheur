@@ -9,6 +9,8 @@ use Clone qw/clone/;
 use Config::PL ();
 use Encode;
 use File::Spec;
+use File::ShareDir;
+use List::Util qw(first);
 use URL::Encode;
 use Plack::Session;
 use Plack::Util;
@@ -79,7 +81,7 @@ sub template_dir {
     my $self = shift;
     my $class = $self->app_name;
 
-    my $tmpl = $self->{template_dir} ? $self->{template_dir} : ['tmpl'];
+    my $tmpl = $self->{template_dir} ? $self->{template_dir} : File::Spec->catfile($self->asset_dir, 'tmpl');
     my @tmpl = ref $tmpl ? @$tmpl : ($tmpl);
 
     @tmpl = map {
@@ -246,7 +248,7 @@ sub debug_mode { $ENV{PUNCHEUR_DEBUG} }
 sub load_config {
     my $self = shift;
 
-    my $config_file = $self->{config} || 'config.pl';
+    my $config_file = $self->{config} || File::Spec->catfile($self->asset_dir, 'config.pl');
     return $config_file if ref $config_file;
     $config_file = File::Spec->catfile($self->base_dir, $config_file)
         unless File::Spec->file_name_is_absolute($config_file);
@@ -259,6 +261,44 @@ sub config {
 
     my $config = $class->load_config;
     $self->_cache_method($config);
+}
+
+sub asset_dir {
+    my $self = shift;
+
+    my $asset_dir;
+    if (ref $self and $assset_dir = $self->{asset_dir}) {
+        $asset_dir = File::Spec->catfile($self->base_dir, $assset_dir)
+            unless File::Spec->file_name_is_absolute($asset_dir);
+    }
+    else {
+        $asset_dir = $self->share_dir;
+    }
+
+    $self->_cache_method($asset_dir);
+}
+
+sub share_dir {
+    my $self = shift;
+    my $app_name = $self->app_name;
+
+    my $share_dir = sub {
+        my $d1 = File::Spec->catfile($self->base_dir, 'share');
+        return $d1 if -d $d1;
+
+        my $dist = first { $_ ne 'Puncheur' && $_->isa('Puncheur') } reverse @{mro::get_linear_isa($app_name)};
+           $dist =~ s!::!-!g;
+
+        local $@;
+        my $d2 = eval {
+            File::ShareDir::dist_dir($dist);
+        };
+        return $d2 if $d2 && -d $d2;
+
+        return $d1;
+    }->();
+
+    $self->_cache_method($share_dir);
 }
 
 # -------------------------------------------------------------------------
@@ -504,6 +544,8 @@ Puncheur is a web application framework.
 =item dispatcher
 
 =item template_dir
+
+=item asset_dir
 
 =item app_name
 
