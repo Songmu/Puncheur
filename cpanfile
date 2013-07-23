@@ -1,5 +1,4 @@
 requires 'Config::PL';
-requires 'File::ShareDir';
 requires 'Plack';
 requires 'Tiffany';
 requires 'URI::QueryParam';

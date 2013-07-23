@@ -17,10 +17,12 @@ sub share_dir {
         my $d1 = File::Spec->catfile($c->base_dir, 'share');
         return $d1 if -d $d1;
 
-        my $dist = first { $_ ne 'Puncheur' && $_->isa('Puncheur') } reverse @{mro::get_linear_isa(ref $c || $c)};
+        my $dist = first { $_ ne 'Puncheur' && $_->isa('Puncheur') } reverse @{mro::get_linear_isa($klass)};
            $dist =~ s!::!-!g;
-        my $d2 = File::ShareDir::dist_dir($dist);
-        return $d2 if -d $d2;
+
+        local $@;
+        my $d2 = eval { File::ShareDir::dist_dir($dist) };
+        return $d2 if $d2 && -d $d2;
 
         return $d1;
     }->();

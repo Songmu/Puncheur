@@ -9,15 +9,14 @@ use Clone qw/clone/;
 use Config::PL ();
 use Encode;
 use File::Spec;
-use File::ShareDir;
-use List::Util qw(first);
 use URL::Encode;
 use Plack::Session;
 use Plack::Util;
+use Scalar::Util ();
+
 use Puncheur::Request;
 use Puncheur::Response;
 use Puncheur::Trigger qw/add_trigger call_trigger get_trigger_code/;
-use Scalar::Util ();
 
 sub new {
     my ($base_class, %args) = @_;
@@ -273,34 +272,14 @@ sub asset_dir {
         $asset_dir = File::Spec->catfile($self->base_dir, $assset_dir)
             unless File::Spec->file_name_is_absolute($asset_dir);
     }
-    else {
+    elsif ($self->can('share_dir')) {
         $asset_dir = $self->share_dir;
+    }
+    else {
+        $asset_dir = File::Spec->catfile($self->base_dir, 'share');
     }
 
     $self->_cache_method($asset_dir);
-}
-
-sub share_dir {
-    my $self = shift;
-    my $app_name = $self->app_name;
-
-    my $share_dir = sub {
-        my $d1 = File::Spec->catfile($self->base_dir, 'share');
-        return $d1 if -d $d1;
-
-        my $dist = first { $_ ne 'Puncheur' && $_->isa('Puncheur') } reverse @{mro::get_linear_isa($app_name)};
-           $dist =~ s!::!-!g;
-
-        local $@;
-        my $d2 = eval {
-            File::ShareDir::dist_dir($dist);
-        };
-        return $d2 if $d2 && -d $d2;
-
-        return $d1;
-    }->();
-
-    $self->_cache_method($share_dir);
 }
 
 # -------------------------------------------------------------------------
