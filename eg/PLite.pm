@@ -6,7 +6,7 @@ enable_session;
 __PACKAGE__->setting(
     handle_static => 1,
 );
-__PACKAGE__->load_plugins('JSON');
+__PACKAGE__->load_plugins('JSON', 'ShareDir');
 
 any '/' => sub {
     my $c = shift;

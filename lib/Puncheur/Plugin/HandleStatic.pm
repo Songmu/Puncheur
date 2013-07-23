@@ -23,8 +23,8 @@ sub to_psgi {
         my $app_file_1;
         my $app_file_2;
 
-        my $base_dir   = $self->can('share_dir') ? $self->share_dir : $self->base_dir;
-        my $static_dir = File::Spec->catdir( $base_dir, 'static' );
+        my $asset_dir = $self->asset_dir;
+        my $static_dir = File::Spec->catdir( $asset_dir, 'static' );
         $app = sub {
             my $env = shift;
             my $path_info = $env->{PATH_INFO};
@@ -58,7 +58,7 @@ sub to_psgi {
                 return $app_file_1->call($env);
             }
             elsif ($path_info =~ m{^/static/}) {
-                $app_file_2 ||= Plack::App::File->new({ root => $base_dir });
+                $app_file_2 ||= Plack::App::File->new({ root => $asset_dir });
                 return $app_file_2->call($env);
             }
             else {
