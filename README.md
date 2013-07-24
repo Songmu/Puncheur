@@ -40,6 +40,7 @@ Puncheur is a web application framework.
 - config
 - dispatcher
 - template\_dir
+- asset\_dir
 - app\_name
 
 # LICENSE
