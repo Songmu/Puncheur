@@ -1,3 +1,4 @@
+- move default config file layout to config/ ?
 - parse_options for Puncheur::Runner
 - filter in Dispatcher::Lite
 - documentation
