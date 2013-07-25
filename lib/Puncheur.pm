@@ -271,10 +271,8 @@ sub load_config {
 }
 sub config {
     my $self = shift;
-    my $class = $self->app_name;
 
-    my $config = $class->load_config;
-    $self->_cache_method($config);
+    $self->_cache_method($self->load_config);
 }
 
 # -------------------------------------------------------------------------
