@@ -269,7 +269,7 @@ sub load_config {
     $config_file = File::Spec->catfile($self->base_dir, $config_file)
         unless File::Spec->file_name_is_absolute($config_file);
 
-    -e $config_file ? Config::PL::config_do($config_file) : {};
+    -e $config_file ? scalar Config::PL::config_do($config_file) : {};
 }
 sub config {
     my $self = shift;
