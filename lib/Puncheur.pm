@@ -42,7 +42,9 @@ sub new {
         }
         Carp::croak "$class is not $base_class class" unless $class->isa($base_class);
     }
-    bless { %args }, $class;
+    my $self = bless { %args }, $class;
+    $self->config; # surely assign config
+    $self;
 }
 our $_CONTEXT;
 sub context { $_CONTEXT }
