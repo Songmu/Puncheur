@@ -264,7 +264,7 @@ sub dispatch {
 sub load_config {
     my $self = shift;
 
-    my $config_file = $self->{config} || File::Spec->catfile($self->asset_dir, 'config.pl');
+    my $config_file = $self->{config} || File::Spec->catfile('config', 'common.pl');
     return $config_file if ref $config_file;
     $config_file = File::Spec->catfile($self->base_dir, $config_file)
         unless File::Spec->file_name_is_absolute($config_file);
