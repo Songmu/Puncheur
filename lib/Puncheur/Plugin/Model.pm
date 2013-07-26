@@ -16,9 +16,10 @@ sub init {
     $model_class->register(config   => sub { $app_class->config   });
 }
 
+my %INSTANCE;
 sub model {
     my ($c, $name) = @_;
-    state $instance = do {
+    my $instance = $INSTANCE{$c->app_name} ||= do {
         my $model_class = $c->app_name . '::Models';
         $model_class->instance
     };
