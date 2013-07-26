@@ -118,4 +118,9 @@ sub uri_with {
     return $uri;
 }
 
+sub capture_params {
+    my ($self, @params) = @_;
+    (map {($_ => $self->parameters->get($_))} @params);
+}
+
 1;

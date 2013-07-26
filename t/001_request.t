@@ -43,4 +43,13 @@ subtest 'uri' => sub {
     is $base.'', "http://$host/";
 };
 
+subtest capture_params => sub {
+    my %params = $req->capture_params(qw/foo bar/);
+
+    is_deeply \%params, {
+        foo => 'ほげ',
+        bar => 'ふが2',
+    };
+};
+
 done_testing;
