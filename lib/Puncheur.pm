@@ -112,13 +112,17 @@ sub base_dir {
         $path =~ s!::!/!g;
         if (!$self->{app_name} and my $libpath = $INC{"$path.pm"}) {
             $libpath =~ s!\\!/!g; # win32
-            $libpath =~ s!(?:blib/)?lib/+$path\.pm$!!;
-            File::Spec->rel2abs($libpath || './');
-        } else {
+            if ($libpath =~ s!(?:blib/)?lib/+$path\.pm$!!) {
+                File::Spec->rel2abs($libpath || './');
+            }
+            else {
+                File::Spec->rel2abs('./');
+            }
+        }
+        else {
             File::Spec->rel2abs('./');
         }
     };
-
     $class->_cache_method($base_dir);
 }
 
