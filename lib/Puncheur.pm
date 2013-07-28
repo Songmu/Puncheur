@@ -3,7 +3,7 @@ use 5.010;
 use strict;
 use warnings;
 
-our $VERSION = "0.01";
+our $VERSION = "0.0.1";
 
 use Carp ();
 use Clone qw/clone/;
@@ -527,6 +527,8 @@ And in your console,
 =head1 DESCRIPTION
 
 Puncheur is a web application framework.
+
+B<THE SOFTWARE IS ALPHA QUALITY. API MAY CHANGE WITHOUT NOTICE.>
 
 =head1 INTERFACE
 
