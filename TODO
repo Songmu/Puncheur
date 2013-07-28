@@ -9,5 +9,6 @@
  - new した時にすでにnewされたものがあった場合に、なんらかのケアが必要かも
  - newをオーバーライドされたら割とおしまい (-> new再定義するなポリシー?)
   - newしたあとのフックポイントが必要かなー (BUILD的な)
+  - newをオーバーライドした場合はエラー出すとか？
 - parse_options for Puncheur::Runner
 - filter in Dispatcher::Lite inspired from Kossy
