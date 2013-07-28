@@ -1,5 +1,6 @@
 package Puncheur;
 use 5.010;
+use strict;
 use warnings;
 
 our $VERSION = "0.01";
@@ -89,8 +90,8 @@ sub asset_dir {
     my $self = shift;
 
     my $asset_dir;
-    if (ref $self and $assset_dir = $self->{asset_dir}) {
-        $asset_dir = File::Spec->catfile($self->base_dir, $assset_dir)
+    if (ref $self and $asset_dir = $self->{asset_dir}) {
+        $asset_dir = File::Spec->catfile($self->base_dir, $asset_dir)
             unless File::Spec->file_name_is_absolute($asset_dir);
     }
     elsif ($self->can('share_dir')) {

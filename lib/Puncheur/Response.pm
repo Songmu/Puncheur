@@ -1,7 +1,6 @@
 package Puncheur::Response;
 use strict;
 use warnings;
-use utf8;
 
 use parent 'Plack::Response';
 

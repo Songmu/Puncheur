@@ -1,5 +1,6 @@
 package Puncheur::Plugin::Model;
 use 5.010;
+use strict;
 use warnings;
 
 use Carp;

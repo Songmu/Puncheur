@@ -1,5 +1,6 @@
 package Puncheur::Plugin::ShareDir;
 use 5.010;
+use strict;
 use warnings;
 
 use File::Spec;

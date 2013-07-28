@@ -1,11 +1,12 @@
 package Puncheur::Plugin::HandleStatic;
 use 5.010;
+use strict;
 use warnings;
 
 use MIME::Base64;
 use Encode;
 
-@EXPORT = qw/to_psgi/;
+our @EXPORT = qw/to_psgi/;
 
 sub to_psgi {
     my ($self, %opts) = @_;
@@ -31,6 +32,7 @@ sub to_psgi {
             if ($vpath and my $content = $vpath->{$path_info} and $path_info =~ m{^/}) {
                 my $ct = Plack::MIME->mime_type($path_info);
 
+                my $app_name = $self->app_name;
                 my $is_text = qr/\b(?:text|xml|javascript|json)\b/;
                 state $cache = {};
                 if ($cache->{$app_name}{$path_info}) {
