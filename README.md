@@ -28,6 +28,8 @@ And in your console,
 
 Puncheur is a web application framework.
 
+__THE SOFTWARE IS ALPHA QUALITY. API MAY CHANGE WITHOUT NOTICE.__
+
 # INTERFACE
 
 ## Constructor
