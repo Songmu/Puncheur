@@ -1,5 +1,5 @@
 {
-   "abstract" : "It's new $module",
+   "abstract" : "a web application framework",
    "author" : [
       "Masayuki Matsuki <y.songmu@gmail.com>"
    ],
@@ -41,9 +41,19 @@
          }
       },
       "runtime" : {
+         "recommends" : {
+            "Data::Section::Simple" : "0",
+            "File::ShareDir" : "0",
+            "JSON" : "0",
+            "MIME::Base64" : "0",
+            "Router::Simple" : "0.14",
+            "Router::Simple::Sinatraish" : "0"
+         },
          "requires" : {
+            "Clone" : "0",
             "Config::PL" : "0",
             "Plack" : "0",
+            "Plack::Middleware::Session" : "0",
             "Tiffany" : "0",
             "URI::QueryParam" : "0",
             "URL::Encode" : "0",
@@ -68,5 +78,5 @@
          "web" : "https://github.com/Songmu/Puncheur"
       }
    },
-   "version" : "0.0.1"
+   "version" : "0.0.2"
 }

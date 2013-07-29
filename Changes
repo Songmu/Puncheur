@@ -2,6 +2,11 @@ Revision history for Perl extension Puncheur
 
 {{$NEXT}}
 
+0.0.2 2013-07-29T05:36:54Z
+
+    - update dependencies
+    - update pod
+
 0.0.1 2013-07-28T17:28:43Z
 
     - original version

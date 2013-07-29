@@ -3,7 +3,7 @@ use 5.010;
 use strict;
 use warnings;
 
-our $VERSION = "0.0.1";
+our $VERSION = "0.0.2";
 
 use Carp ();
 use Clone qw/clone/;
@@ -500,7 +500,7 @@ __END__
 
 =head1 NAME
 
-Puncheur - It's new $module
+Puncheur - a web application framework
 
 =head1 SYNOPSIS
 

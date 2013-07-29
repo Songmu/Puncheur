@@ -1,6 +1,6 @@
 # NAME
 
-Puncheur - It's new $module
+Puncheur - a web application framework
 
 # SYNOPSIS
 
