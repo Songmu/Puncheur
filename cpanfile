@@ -1,5 +1,6 @@
 requires 'Clone';
 requires 'Config::PL';
+requires 'Hash::MultiValue';
 requires 'Plack';
 requires 'Plack::Middleware::Session';
 requires 'Tiffany';
