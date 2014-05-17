@@ -2,6 +2,11 @@ Revision history for Perl extension Puncheur
 
 {{$NEXT}}
 
+0.1.0 2014-05-17T08:13:38Z
+
+    - rewrite Puncheur::Dispatcher::Lite. most of code copied from Amon2::Web::Dispatcher::RouterBoom,
+      remove deps Router::Simple and depends on Router::Boom
+
 0.0.3 2013-08-05T12:58:48Z
 
     - fix deps

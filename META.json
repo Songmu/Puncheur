@@ -4,7 +4,7 @@
       "Masayuki Matsuki <y.songmu@gmail.com>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Minilla/v0.5.6, CPAN::Meta::Converter version 2.120921",
+   "generated_by" : "Minilla/v0.15.2, CPAN::Meta::Converter version 2.141170",
    "license" : [
       "perl_5"
    ],
@@ -21,7 +21,8 @@
          "share",
          "eg",
          "examples",
-         "author"
+         "author",
+         "builder"
       ]
    },
    "prereqs" : {
@@ -35,7 +36,8 @@
       "develop" : {
          "requires" : {
             "Test::CPAN::Meta" : "0",
-            "Test::MinimumVersion" : "0.10108",
+            "Test::MinimumVersion::Fast" : "0.04",
+            "Test::PAUSE::Permissions" : "0.04",
             "Test::Pod" : "1.41",
             "Test::Spellunker" : "v0.2.7"
          }
@@ -46,8 +48,7 @@
             "File::ShareDir" : "0",
             "JSON" : "0",
             "MIME::Base64" : "0",
-            "Router::Simple" : "0.14",
-            "Router::Simple::Sinatraish" : "0",
+            "Router::Boom::Method" : "0",
             "Text::Xslate" : "0",
             "URL::Encode::XS" : "0"
          },
@@ -57,9 +58,9 @@
             "Hash::MultiValue" : "0",
             "Plack" : "0",
             "Plack::Middleware::Session" : "0",
+            "Plack::Request::WithEncoding" : "0",
             "Tiffany" : "0",
             "URI::QueryParam" : "0",
-            "URL::Encode" : "0",
             "perl" : "5.010"
          }
       },
@@ -81,5 +82,5 @@
          "web" : "https://github.com/Songmu/Puncheur"
       }
    },
-   "version" : "0.0.3"
+   "version" : "0.1.0"
 }
