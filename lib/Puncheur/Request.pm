@@ -4,9 +4,6 @@ use warnings;
 
 use parent 'Plack::Request::WithEncoding';
 use Carp ();
-use Encode;
-use Hash::MultiValue;
-use URL::Encode;
 use URI::QueryParam;
 
 sub uri {
