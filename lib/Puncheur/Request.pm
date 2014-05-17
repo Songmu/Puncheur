@@ -2,7 +2,7 @@ package Puncheur::Request;
 use strict;
 use warnings;
 
-use parent 'Plack::Request';
+use parent 'Plack::Request::WithEncoding';
 use Carp ();
 use Encode;
 use Hash::MultiValue;
@@ -23,62 +23,21 @@ sub base {
     $self->{base}->clone; # avoid destructive operation
 }
 
-sub body_parameters {
-    my ($self) = @_;
-    $self->{body_parameters} ||= $self->_decode_parameters($self->SUPER::body_parameters);
-}
-
-sub query_parameters {
-    my ($self) = @_;
-    $self->{query_parameters} ||= $self->_decode_parameters($self->query_parameters_raw);
-}
-
-sub _decode_parameters {
-    my ($self, $stuff) = @_;
-
-    my @flatten = $stuff->flatten;
-    my @decoded;
-    while ( my ($k, $v) = splice @flatten, 0, 2 ) {
-        push @decoded, Encode::decode_utf8($k), Encode::decode_utf8($v);
-    }
-    return Hash::MultiValue->new(@decoded);
-}
-sub parameters {
-    my $self = shift;
-    $self->{'request.merged'} ||= do {
-        my $query = $self->query_parameters;
-        my $body  = $self->body_parameters;
-        Hash::MultiValue->new( $query->flatten, $body->flatten );
-    };
-}
-
+# for backward compatible
 sub body_parameters_raw {
-    shift->SUPER::body_parameters;
+    shift->raw_body_parameters(@_);
 }
 
 sub query_parameters_raw {
-    my $self = shift;
-    my $env  = $self->{env};
-    $env->{'plack.request.query'} ||= Hash::MultiValue->new(@{URL::Encode::url_params_flat($env->{'QUERY_STRING'})});
+    shift->raw_query_parameters(@_);
 }
 
 sub parameters_raw {
-    my $self = shift;
-    $self->{env}{'plack.request.merged'} ||= do {
-        my $query = $self->query_parameters_raw;
-        my $body  = $self->SUPER::body_parameters;
-        Hash::MultiValue->new( $query->flatten, $body->flatten );
-    };
+    shift->raw_parameters(@_);
 }
 
 sub param_raw {
-    my $self = shift;
-
-    return keys %{ $self->parameters_raw } if @_ == 0;
-
-    my $key = shift;
-    return $self->parameters_raw->{$key} unless wantarray;
-    return $self->parameters_raw->get_all($key);
+    shift->raw_param(@_);
 }
 
 sub uri_with {

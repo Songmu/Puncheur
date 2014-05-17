@@ -3,6 +3,7 @@ requires 'Config::PL';
 requires 'Hash::MultiValue';
 requires 'Plack';
 requires 'Plack::Middleware::Session';
+requires 'Plack::Request::WithEncoding';
 requires 'Tiffany';
 requires 'URI::QueryParam';
 requires 'URL::Encode';
