@@ -44,7 +44,6 @@
       },
       "runtime" : {
          "recommends" : {
-            "Data::Section::Simple" : "0",
             "File::ShareDir" : "0",
             "JSON" : "0",
             "MIME::Base64" : "0",
@@ -55,12 +54,14 @@
          "requires" : {
             "Clone" : "0",
             "Config::PL" : "0",
+            "Data::Section::Simple" : "0",
             "Hash::MultiValue" : "0",
             "Plack" : "0",
             "Plack::Middleware::Session" : "0",
             "Plack::Request::WithEncoding" : "0",
             "Tiffany" : "0",
             "URI::QueryParam" : "0",
+            "URL::Encode" : "0",
             "perl" : "5.010"
          }
       },
@@ -82,5 +83,5 @@
          "web" : "https://github.com/Songmu/Puncheur"
       }
    },
-   "version" : "0.1.0"
+   "version" : "0.1.1"
 }
