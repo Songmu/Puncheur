@@ -3,7 +3,7 @@ use 5.010;
 use strict;
 use warnings;
 
-our $VERSION = "0.1.1";
+our $VERSION = "0.1.2";
 
 use Carp ();
 use Clone qw/clone/;
