@@ -2,6 +2,8 @@ Revision history for Perl extension Puncheur
 
 {{$NEXT}}
 
+0.2.0 2014-05-24T06:03:24Z
+
     - internal change in Puncheur::Runner
     - add `run` method
     - add `to_app` method alias of `to_psgi`
