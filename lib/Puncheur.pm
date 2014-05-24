@@ -371,6 +371,25 @@ sub to_psgi {
     $self = $self->new unless ref $self;
     return sub { $self->handle_request(shift) };
 }
+sub to_app { goto \&to_psgi }
+
+sub run {
+    my $self = shift;
+    my %opts = @_ == 1 ? %{$_[0]} : @_;
+
+    my %server;
+    my $server = delete $opts{server};
+    $server{server} = $server if $server;
+
+    my @options = %opts;
+    require Plack::Runner;
+
+    my $runner = Plack::Runner->new(
+        %server,
+        options => \@options,
+    );
+    $runner->run($self->to_app);
+}
 
 sub handle_request {
     my ($self, $env) = @_;
