@@ -9,28 +9,29 @@ sub new {
     my ($class, $app, $plackup_options) = @_;
     $plackup_options ||= {};
     $app = Plack::Util::load_class($app);
-    my @argv = @ARGV;
+    my ($options, $argv);
+    if ($app->can('parse_options')) {
+        ($options, $argv) = $app->parse_options(@ARGV);
+    }
+    $argv = [@ARGV] unless $argv;
 
     my @default;
     while (my ($key, $value) = each %$plackup_options) {
         push @default, "--$key=$value";
     }
     my $runner = Plack::Runner->new;
-    $runner->parse_options(@default, @argv);
+    $runner->parse_options(@default, @$argv);
 
-    my %options;
-    if ($app->can('parse_options')) {
-        %options = $app->parse_options(@argv);
-    }
-    else {
-        %options = @{ $runner->{options} };
+    if (!$app->can('parse_options')) {
+        my %options = @{ $runner->{options} };
         delete $options{$_} for qw/listen socket/;
+        $options = \%options;
     }
 
     bless {
         app         => $app,
         runner      => $runner,
-        app_options => \%options,
+        app_options => $options,
     }, $class;
 }
 
