@@ -348,11 +348,8 @@ sub redirect {
     );
 }
 
-sub uri_for {
-    my ($self, $path, $query) = @_;
-    my $root = $self->req->base || '/';
-    $root =~ s{([^/])$}{$1/};
-    $path =~ s{^/}{};
+sub _build_query {
+    my ($self, $query) = @_;
 
     my @query = !$query ? () : ref $query eq 'HASH' ? %$query : @$query;
     my @q;
@@ -360,7 +357,30 @@ sub uri_for {
         $val = URL::Encode::url_encode(Encode::encode($self->encoding, $val));
         push @q, "${key}=${val}";
     }
-    $root . $path . (scalar @q ? '?' . join('&', @q) : '');
+    @q ? '?' . join('&', @q) : '';
+}
+
+sub _build_uri {
+    my ($self, $root, $path, $query) = @_;
+
+    $root =~ s{([^/])$}{$1/};
+    $path =~ s{^/}{};
+
+    $root . $path . $self->_build_query($query);
+}
+
+sub uri_for {
+    my ($self, $path, $query) = @_;
+    my $root = $self->req->{env}->{SCRIPT_NAME} || '/';
+
+    $self->_build_uri($root, $path, $query);
+}
+
+sub abs_uri_for {
+    my ($self, $path, $query) = @_;
+    my $root = $self->req->base;
+
+    $self->_build_uri($root, $path, $query);
 }
 
 # -------------------------------------------------------------------------
